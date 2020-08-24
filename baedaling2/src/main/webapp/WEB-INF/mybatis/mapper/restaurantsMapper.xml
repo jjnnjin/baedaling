@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="resto">
+	<resultMap type="com.bd.rerestaurants.Restaurants" id="listRestaurantsMap">
+		<result property="restaurantsNum" column="restaurantsNum"/>
+		<result property="name" column="name"/>
+		<result property="addr1" column="addr1"/>
+		<result property="openinghour" column="openinghour"/>
+		<result property="endinghour" column="endinghour"/>
+		<result property="fctel" column="fctel"/>
+		<result property="minorder" column="minorder"/>
+		<result property="savefilename" column="savefilename"/>
+		<result property="distance" column="distance"/>
+		<result property="starcount" column="starcount"/>
+		<result property="reviewcount" column="reviewcount"/>
+	</resultMap>
+	
+	<select id="listRestaurants" parameterType="map" statementType="CALLABLE">
+	{		
+			call listRestaurants(#{result,jdbcType=CURSOR, mode=OUT, javaType=java.sql.ResultSet, resultMap=listRestaurantsMap},
+							   	 #{typecategorynum, jdbcType=INTEGER, mode=IN},
+							  	 #{city, jdbcType=VARCHAR, mode=IN},
+							  	 #{longitude, jdbcType=INTEGER, mode=IN},
+							  	 #{latitude, jdbcType=INTEGER, mode=IN},
+							 	 #{offset, jdbcType=INTEGER, mode=IN},
+							 	 #{rows, jdbcType=INTEGER, mode=IN})
+	}
+	</select>
+	
+	<select id="countRestaurants" parameterType="map" statementType="CALLABLE">
+	{
+			call countRestaurants(#{result,jdbcType=INTEGER, mode=OUT},
+						   		   #{typecategorynum, jdbcType=INTEGER, mode=IN},
+								   #{city, jdbcType=VARCHAR, mode=IN},
+								   #{longitude, jdbcType=INTEGER, mode=IN},
+								   #{latitude, jdbcType=INTEGER, mode=IN})
+	}
+	</select>
+	
+	<select id="listAllRestaurants" parameterType="map" statementType="CALLABLE">
+	{		
+			call listAllRestaurants(#{result,jdbcType=CURSOR, mode=OUT, javaType=java.sql.ResultSet, resultMap=listRestaurantsMap},
+							  	 #{city, jdbcType=VARCHAR, mode=IN},
+							  	 #{longitude, jdbcType=INTEGER, mode=IN},
+							  	 #{latitude, jdbcType=INTEGER, mode=IN},
+							 	 #{offset, jdbcType=INTEGER, mode=IN},
+							 	 #{rows, jdbcType=INTEGER, mode=IN})
+	}
+	</select>
+	
+	<select id="countAllRestaurants" parameterType="map" statementType="CALLABLE">
+	{
+			call countAllRestaurants(#{result,jdbcType=INTEGER, mode=OUT},
+								   #{city, jdbcType=VARCHAR, mode=IN},
+								   #{longitude, jdbcType=INTEGER, mode=IN},
+								   #{latitude, jdbcType=INTEGER, mode=IN})
+	}
+	</select>
+	
+	<select id="listStarRestaurants" parameterType="map" statementType="CALLABLE">
+	{		
+			call listStarRestaurants(#{result,jdbcType=CURSOR, mode=OUT, javaType=java.sql.ResultSet, resultMap=listRestaurantsMap},
+							   	 #{typecategorynum, jdbcType=INTEGER, mode=IN},
+							  	 #{city, jdbcType=VARCHAR, mode=IN},
+							  	 #{longitude, jdbcType=INTEGER, mode=IN},
+							  	 #{latitude, jdbcType=INTEGER, mode=IN},
+							 	 #{offset, jdbcType=INTEGER, mode=IN},
+							 	 #{rows, jdbcType=INTEGER, mode=IN})
+	}
+	</select>
+	
+	<select id="listAllStarRestaurants" parameterType="map" statementType="CALLABLE">
+	{		
+			call listAllStarRestaurants(#{result,jdbcType=CURSOR, mode=OUT, javaType=java.sql.ResultSet, resultMap=listRestaurantsMap},
+							  	 #{city, jdbcType=VARCHAR, mode=IN},
+							  	 #{longitude, jdbcType=INTEGER, mode=IN},
+							  	 #{latitude, jdbcType=INTEGER, mode=IN},
+							 	 #{offset, jdbcType=INTEGER, mode=IN},
+							 	 #{rows, jdbcType=INTEGER, mode=IN})
+	}
+	</select>
+	
+	<select id="listReviewRestaurants" parameterType="map" statementType="CALLABLE">
+	{		
+			call listReviewRestaurants(#{result,jdbcType=CURSOR, mode=OUT, javaType=java.sql.ResultSet, resultMap=listRestaurantsMap},
+							   	 #{typecategorynum, jdbcType=INTEGER, mode=IN},
+							  	 #{city, jdbcType=VARCHAR, mode=IN},
+							  	 #{longitude, jdbcType=INTEGER, mode=IN},
+							  	 #{latitude, jdbcType=INTEGER, mode=IN},
+							 	 #{offset, jdbcType=INTEGER, mode=IN},
+							 	 #{rows, jdbcType=INTEGER, mode=IN})
+	}
+	</select>
+	
+	<select id="listAllReviewRestaurants" parameterType="map" statementType="CALLABLE">
+	{		
+			call listAllReviewRestaurants(#{result,jdbcType=CURSOR, mode=OUT, javaType=java.sql.ResultSet, resultMap=listRestaurantsMap},
+							  	 #{city, jdbcType=VARCHAR, mode=IN},
+							  	 #{longitude, jdbcType=INTEGER, mode=IN},
+							  	 #{latitude, jdbcType=INTEGER, mode=IN},
+							 	 #{offset, jdbcType=INTEGER, mode=IN},
+							 	 #{rows, jdbcType=INTEGER, mode=IN})
+	}
+	</select>
+	
+</mapper>

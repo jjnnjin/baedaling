@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fo">
+<select id="seq" resultType="Integer">
+	SELECT foodorder_seq.NEXTVAL FROM dual
+</select>
+
+<!-- 오더 리스트 -->
+<select id="orderComplete" parameterType="map" resultType="com.bd.foodorder.FoodOrder">
+    SELECT f.foodOrderNum, TO_CHAR(foodOrderDate,'YY-MM-DD HH:MI') foodOrderDate,
+		  	foodOrderAddr, TO_CHAR(foodOrderPayCompletionDate,'YY-MM-DD HH:MI') foodOrderPayCompletionDate,
+		   TO_CHAR(foodOrderCompletionDate,'YY-MM-DD HH:MI')foodOrderCompletionDate,memo,f.userIdx,f.restaurantsNum,
+		   LISTAGG(rm.menuName,',') WITHIN GROUP(ORDER BY f.foodorderNum)AS smenuName,
+		   LISTAGG(o.qty,',') WITHIN GROUP(ORDER BY f.foodorderNum)AS sqty
+	FROM foodorder f 
+    JOIN user1 u ON f.userIdx = u.userIdx
+    JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+    JOIN restaurants r ON f.restaurantsNum = r.restaurantsNum
+    JOIN restaurantMenu rm ON o.menuNum = rm.menuNum
+    WHERE f.restaurantsNum = #{restaurantsNum} AND INSTR(foodOrderState , #{foodOrderState}) =1 AND 
+    	TO_CHAR(foodOrderDate,'YYMMDD') = TO_CHAR(SYSDATE,'YYMMDD')group by f.foodOrderNum, TO_CHAR(foodOrderDate,'YY-MM-DD HH:MI'), foodOrderAddr, TO_CHAR(foodOrderPayCompletionDate,'YY-MM-DD HH:MI'), TO_CHAR(foodOrderCompletionDate,'YY-MM-DD HH:MI'), 
+memo, f.userIdx, f.restaurantsNum
+</select>
+
+<!-- 전체리스트 -->
+<select id="allOrderList" parameterType="map" resultType="com.bd.foodorder.FoodOrder">
+    SELECT f.foodOrderNum, TO_CHAR(foodOrderDate,'YY-MM-DD HH:MI') foodOrderDate,
+		   foodOrderTotalPrice, foodOrderAddr, foodOrderHowPay,
+		   foodOrderPay, TO_CHAR(foodOrderPayCompletionDate,'YY-MM-DD HH:MI') foodOrderPayCompletionDate,
+		   TO_CHAR(foodOrderCompletionDate,'YY-MM-DD HH:MI') foodOrderCompletionDate,memo,f.userIdx, o.menuNum,qty,f.restaurantsNum, LISTAGG(rm.menuName,',') WITHIN GROUP(ORDER BY f.foodorderNum)AS menuName
+	FROM foodorder f 
+    JOIN user1 u ON f.userIdx = u.userIdx
+    JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+    JOIN restaurants r ON f.restaurantsNum = r.restaurantsNum
+    JOIN restaurantMenu rm ON o.menuNum = rm.menuNum
+    WHERE f.restaurantsNum = #{restaurantsNum} AND INSTR(foodOrderState , #{foodOrderState}) =1
+    GROUP BY f.foodOrderNum,foodOrderDate,foodOrderTotalPrice, foodOrderAddr, foodOrderHowPay, foodOrderPay
+    	,foodOrderPayCompletionDate, foodOrderPayCompletionDate, foodOrderCompletionDate, memo, f.userIdx
+    	,o.menuNum, qty,f.restaurantsNum,rm.menuName
+    ORDER BY f.foodorderNum DESC
+	OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+                
+</select>
+
+<!-- 주문 상태변경 -->
+<update id="updateState" parameterType="map">
+	UPDATE foodorder SET  foodOrderState = #{orderState}
+	WHERE foodorderNum = #{foodorderNum}
+</update> 
+
+<update id="updateCompleteDate" parameterType ="Integer">
+	UPDATE foodorder SET foodOrderCompletionDate = SYSDATE
+ 	WHERE foodorderNum = #{foodorderNum}
+</update>
+
+<delete id="deletedetailOrder" parameterType="Integer">
+	DELETE FROM orderdetail WHERE foodorderNum = #{foodorderNum}	
+</delete>
+
+<delete id="deleteOrder" parameterType="Integer">
+	DELETE FROM foodorder WHERE  foodorderNum = #{foodorderNum}
+</delete>
+
+<!-- 주문 내역 수  -->
+<select id="orderCount" parameterType="map" resultType="Integer">
+ SELECT COUNT(*) FROM (SELECT f.foodOrderNum, TO_CHAR(foodOrderDate,'YY-MM-DD HH:MI') foodOrderDate,
+		  	foodOrderAddr, TO_CHAR(foodOrderPayCompletionDate,'YY-MM-DD HH:MI') foodOrderPayCompletionDate,
+		   TO_CHAR(foodOrderCompletionDate,'YY-MM-DD HH:MI')foodOrderCompletionDate,memo,f.userIdx,f.restaurantsNum,
+		   LISTAGG(rm.menuName,',') WITHIN GROUP(ORDER BY f.foodorderNum)AS smenuName,
+		   LISTAGG(o.qty,',') WITHIN GROUP(ORDER BY f.foodorderNum)AS sqty
+	FROM foodorder f 
+    JOIN user1 u ON f.userIdx = u.userIdx
+    JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+    JOIN restaurants r ON f.restaurantsNum = r.restaurantsNum
+    JOIN restaurantMenu rm ON o.menuNum = rm.menuNum
+    WHERE f.restaurantsNum = #{restaurantsNum} AND INSTR(foodOrderState , #{foodOrderState}) =1 AND 
+    	TO_CHAR(foodOrderDate,'YYMMDD') = TO_CHAR(SYSDATE,'YYMMDD')group by f.foodOrderNum, TO_CHAR(foodOrderDate,'YY-MM-DD HH:MI'), foodOrderAddr, TO_CHAR(foodOrderPayCompletionDate,'YY-MM-DD HH:MI'), TO_CHAR(foodOrderCompletionDate,'YY-MM-DD HH:MI'), 
+memo, f.userIdx, f.restaurantsNum)
+</select>
+
+<select id="allorderCount" parameterType="map" resultType="Integer">
+ SELECT COUNT(foodOrderState) FROM foodorder f
+ WHERE INSTR(foodOrderState , #{foodOrderState}) =1 AND restaurantsNum = #{restaurantsNum}
+</select>
+
+<select id="todayOrderCount" parameterType="map" resultType="Integer">
+SELECT NVL(COUNT(*),0) FROM (SELECT f.foodOrderNum, TO_CHAR(f.foodOrderDate,'YY-MM-DD HH:MI') foodOrderDate,
+		  	f.foodOrderAddr, TO_CHAR(f.foodOrderPayCompletionDate,'YY-MM-DD HH:MI') foodOrderPayCompletionDate,
+		   TO_CHAR(f.foodOrderCompletionDate,'YY-MM-DD HH:MI')foodOrderCompletionDate,memo,f.userIdx,f.restaurantsNum,
+		   LISTAGG(rm.menuName,',') WITHIN GROUP(ORDER BY f.foodorderNum)AS ssmenuName,
+		   LISTAGG(o.qty,',') WITHIN GROUP(ORDER BY f.foodorderNum)AS sqty
+	FROM foodorder f 
+    JOIN user1 u ON f.userIdx = u.userIdx
+    JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+    JOIN restaurants r ON f.restaurantsNum = r.restaurantsNum
+    JOIN restaurantMenu rm ON o.menuNum = rm.menuNum
+ WHERE r.restaurantsNum = #{restaurantsNum} AND TO_CHAR(foodorderdate,'YYMMDD') = TO_CHAR(SYSDATE,'YYMMDD') AND 
+ 	   INSTR(foodOrderState , '배달완료') =1 
+ group by f.foodOrderNum, TO_CHAR(foodOrderDate,'YY-MM-DD HH:MI'), foodOrderAddr, TO_CHAR(foodOrderPayCompletionDate,'YY-MM-DD HH:MI'), TO_CHAR(foodOrderCompletionDate,'YY-MM-DD HH:MI'), 
+memo, f.userIdx, f.restaurantsNum)
+</select>
+
+<!-- 일별 매출  -->
+<select id="todaySales" parameterType="Integer" resultType="com.bd.foodorder.FoodOrder">
+SELECT SUM(foodOrderTotalPrice) todaySales
+FROM foodorder f
+JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+JOIN restaurants r ON f.restaurantsNum = r.restaurantsNum 
+WHERE TO_CHAR(foodOrderCompletionDate,'YYMMDD') = TO_CHAR(SYSDATE,'YYMMDD') AND f.restaurantsNum = #{restaurantsNum}
+</select>
+
+<!-- 월별 매출  -->
+<select id="monthlySales" parameterType="Integer" resultType="com.bd.foodorder.FoodOrder">
+SELECT SUM(foodOrderTotalPrice) monthSales
+FROM foodorder f
+JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+JOIN restaurants r ON f.restaurantsNum = r.restaurantsNum 
+WHERE TO_CHAR(foodOrderCompletionDate,'YYMM') = TO_CHAR(SYSDATE,'YYMM') AND f.restaurantsNum = #{restaurantsNum}
+</select>
+
+<!-- 연매출  -->
+<select id="annualSales" parameterType="Integer" resultType="com.bd.foodorder.FoodOrder">
+SELECT SUM(foodOrderTotalPrice) annualSales
+FROM foodorder f
+JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+JOIN restaurants r ON f.restaurantsNum = r.restaurantsNum 
+WHERE TO_CHAR(foodOrderCompletionDate,'YY') = TO_CHAR(SYSDATE,'YY') AND f.restaurantsNum = #{restaurantsNum}
+</select>
+
+
+<!-- 이달의 메뉴별 판매 수량 -->
+<select id="monthlyBest" parameterType="Integer" resultType="com.bd.foodorder.FoodOrder">
+SELECT rm.menuNum, rm.menuName, SUM(qty*orderOnePrice) bestSales 
+FROM foodorder f 
+JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+JOIN restaurants r ON f.restaurantsNum = r.restaurantsNum
+JOIN restaurantMenu rm ON o.menuNum = rm.menuNum
+WHERE TO_CHAR(foodOrderCompletionDate,'YYMM') = TO_CHAR(SYSDATE,'YYMM') AND f.restaurantsNum = #{restaurantsNum}  
+GROUP BY rm.menuName, rm.menuNum
+ORDER BY bestSales desc
+</select>
+
+<select id="todayBest" parameterType="Integer" resultType="com.bd.foodorder.FoodOrder">
+SELECT rm.menuNum, rm.menuName, SUM(qty*orderOnePrice) bestSales 
+FROM foodorder f 
+JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+JOIN restaurants r ON f.restaurantsNum = r.restaurantsNum
+JOIN restaurantMenu rm ON o.menuNum = rm.menuNum
+WHERE TO_CHAR(foodOrderCompletionDate,'YYMMDD') = TO_CHAR(SYSDATE,'YYMMDD') AND f.restaurantsNum = #{restaurantsNum}  
+GROUP BY rm.menuName, rm.menuNum
+ORDER BY bestSales desc
+</select>
+
+
+<!-- 월별 매출  -->
+ <select id="monthlySalesChart" parameterType="Integer" resultType="map">
+   
+        SELECT NVL(SUM(DECODE(TO_CHAR(foodOrderCompletionDate, 'MM'), '01', foodOrderTotalPrice)),0) M01,
+                   NVL(SUM(DECODE(TO_CHAR(foodOrderCompletionDate, 'MM'), '02', foodOrderTotalPrice)),0) M02,
+                   NVL(SUM(DECODE(TO_CHAR(foodOrderCompletionDate, 'MM'), '03', foodOrderTotalPrice)),0) M03,
+                   NVL(SUM(DECODE(TO_CHAR(foodOrderCompletionDate, 'MM'), '04', foodOrderTotalPrice)),0) M04,
+                   NVL(SUM(DECODE(TO_CHAR(foodOrderCompletionDate, 'MM'), '05', foodOrderTotalPrice)),0) M05,
+                   NVL(SUM(DECODE(TO_CHAR(foodOrderCompletionDate, 'MM'), '06', foodOrderTotalPrice)),0) M06,
+                   NVL(SUM(DECODE(TO_CHAR(foodOrderCompletionDate, 'MM'), '07', foodOrderTotalPrice)),0) M07,
+                   NVL(SUM(DECODE(TO_CHAR(foodOrderCompletionDate, 'MM'), '08', foodOrderTotalPrice)),0) M08,
+                   NVL(SUM(DECODE(TO_CHAR(foodOrderCompletionDate, 'MM'), '09', foodOrderTotalPrice)),0) M09,
+                   NVL(SUM(DECODE(TO_CHAR(foodOrderCompletionDate, 'MM'), '10', foodOrderTotalPrice)),0) M10,
+                   NVL(SUM(DECODE(TO_CHAR(foodOrderCompletionDate, 'MM'), '11', foodOrderTotalPrice)),0) M11,
+                   NVL(SUM(DECODE(TO_CHAR(foodOrderCompletionDate, 'MM'), '12', foodOrderTotalPrice)),0) M12
+                FROM foodorder f 
+                JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+                JOIN restaurants r ON f.restaurantsNum = r.restaurantsNum
+                WHERE f.restaurantsNum =  #{restaurantsNum}  AND TO_CHAR(foodOrderCompletionDate,'YYYY') = TO_CHAR(SYSDATE,'YYYY')
+ </select>
+ 
+ 
+ <!-- 월별 리뷰 개수 -->
+ <select id="monthlyReviewChart" parameterType="Integer" resultType="map">
+    SELECT NVL(COUNT(DECODE(TO_CHAR(created, 'MM'), '01', reviewNum)),0) M01,
+           NVL(COUNT(DECODE(TO_CHAR(created, 'MM'), '02', reviewNum)),0) M02, 
+           NVL(COUNT(DECODE(TO_CHAR(created, 'MM'), '03', reviewNum)),0) M03,
+           NVL(COUNT(DECODE(TO_CHAR(created, 'MM'), '04', reviewNum)),0) M04,
+           NVL(COUNT(DECODE(TO_CHAR(created, 'MM'), '05', reviewNum)),0) M05,
+           NVL(COUNT(DECODE(TO_CHAR(created, 'MM'), '06', reviewNum)),0) M06,
+           NVL(COUNT(DECODE(TO_CHAR(created, 'MM'), '07', reviewNum)),0) M07,
+           NVL(COUNT(DECODE(TO_CHAR(created, 'MM'), '08', reviewNum)),0) M08,
+           NVL(COUNT(DECODE(TO_CHAR(created, 'MM'), '09', reviewNum)),0) M09,
+           NVL(COUNT(DECODE(TO_CHAR(created, 'MM'), '10', reviewNum)),0) M10,
+           NVL(COUNT(DECODE(TO_CHAR(created, 'MM'), '11', reviewNum)),0) M11,
+           NVL(COUNT(DECODE(TO_CHAR(created, 'MM'), '12', reviewNum)),0) M12
+   FROM review rv
+   WHERE rv.restaurantsNum = #{restaurantsNum}
+ </select>
+ 
+ 
+<select id="readinfo" parameterType="Integer" resultType="com.bd.foodorder.FoodOrder">
+      SELECT r.restaurantsNum, openingHour, endingHour, fctel, mutualName,licenseNumber,introduce,origin, minorder,name, 
+         addr1, addr2,
+      FROM restaurantsInfo if
+      JOIN restaurants r ON if.restaurantsnum = r.restaurantsnum 
+      WHERE r.restaurantsNum = #{restaurantsNum}
+   </select>
+ 
+ 
+ <!-- 가맹점 정보-->
+ 
+  <select id="readInfo" parameterType="Integer" resultType="com.bd.foodorder.FoodOrder">
+       SELECT r.restaurantsNum, TO_CHAR(openingHour,'HH24:MI') openingHour, TO_CHAR(endingHour,'HH24:MI') endingHour, deliTime, fctel, mutualName,licenseNumber,introduce,origin, minorder, name, 
+         addr1, addr2
+      FROM restaurantsInfo if
+      JOIN restaurants r ON if.restaurantsnum = r.restaurantsnum 
+      WHERE r.restaurantsNum = #{restaurantsNum}
+  </select> 
+
+	<select id="fcFileList" parameterType="Integer" resultType="com.bd.foodorder.FoodOrder">
+		SELECT fileNum, rf.restaurantsNum, saveFilename, separate
+		FROM restaurantfile rf 
+		JOIN  restaurants r ON rf.restaurantsNum=r.restaurantsNum
+		WHERE rf.restaurantsNum=#{restaurantsNum}    
+	</select>
+	
+	<insert id="insertFile" parameterType="com.bd.foodorder.FoodOrder">
+		INSERT INTO restaurantfile(fileNum, restaurantsNum, saveFilename, separate)
+			VALUES(restaurantfile_seq.NEXTVAL, #{restaurantsNum}, #{saveFilename}, #{separate})
+	</insert>
+	
+ 
+ 	<update id="updateInfo" parameterType="com.bd.foodorder.FoodOrder">
+ 		UPDATE restaurantsInfo SET openingHour = TO_DATE( #{openingHour}, 'HH24:MI'), endingHour = TO_DATE( #{endingHour}, 'HH24:MI'), 
+ 				mutualName=#{mutualName}, licenseNumber=#{licenseNumber}, introduce=#{introduce}, deliTime=#{deliTime},
+ 				origin=#{origin}, minorder=#{minorder}, fctel = #{fctel}
+ 		WHERE restaurantsNum = #{restaurantsNum} 
+ 	</update>
+ 	
+ 	<update id="updateFcState" parameterType="com.bd.foodorder.FoodOrder">
+ 		UPDATE restaurants SET ready = 1
+ 		WHERE restaurantsnum = #{restaurantsNum} and ready=0
+ 	</update>
+ 
+ 	<select id="readFile" parameterType="Integer" resultType="com.bd.foodorder.FoodOrder">
+ 		SELECT fileNum, restaurantsNum, saveFilename, separate
+ 		FROM restaurantfile
+ 		WHERE restaurantsnum = #{restaurantsNum}
+ 	</select>
+ 	
+ 	<delete id="deleteFile" parameterType="map">
+		DELETE FROM restaurantfile WHERE fileNum = #{fileNum}
+	</delete>	
+ 
+ 
+ <select id="reviewList" parameterType="map" resultType="com.bd.foodorder.FoodOrder">
+   SELECT r.foodorderNum, r.content, TO_CHAR(r.created,'YY-MM-DD HH24:MI') created, starCount, reviewNum, u.userName, LISTAGG(menuName,',') WITHIN GROUP(ORDER BY f.foodorderNum)AS menuName
+   FROM review r
+   JOIN foodorder f ON r.foodorderNum = f.foodorderNum
+   JOIN orderdetail o ON o.foodorderNum = f.foodorderNum
+   JOIN restaurantMenu rm ON rm.menuNum = o.menuNum
+   JOIN user1 u ON r.userIdx = u.userIdx
+   WHERE r.restaurantsNum = #{restaurantsNum}
+   group by r.foodorderNum, r.content, TO_CHAR(r.created,'YY-MM-DD HH24:MI'), starCount, reviewNum, 
+    u.userName
+	ORDER BY created DESC
+	OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+ </select>
+ 
+
+ 	<select id="reviewCount" parameterType="map" resultType="Integer">
+   SELECT NVL(COUNT(*),0) 
+   FROM review 
+   WHERE restaurantsNum = #{restaurantsNum}
+	 </select>
+	 
+
+<select id="reply" parameterType="map" resultType="com.bd.foodorder.FoodOrder">
+	SELECT reviewNum, reply, TO_CHAR(replyCreated,'YY-MM-DD HH24:MI') replyCreated ,restaurantsNum
+	FROM review
+	WHERE restaurantsNum = #{restaurantsNum}
+	ORDER BY reviewNum DESC
+	OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+</select>
+
+
+<select id="replyList" parameterType="map" resultType="com.bd.foodorder.FoodOrder">
+	SELECT reviewNum, reply, TO_CHAR(replyCreated,'YY-MM-DD HH24:MI') replyCreated ,restaurantsNum
+	FROM review
+	WHERE restaurantsNum = #{restaurantsNum} AND reviewNum = #{reviewNum}
+	ORDER BY reviewNum DESC
+	OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+</select>
+
+
+ <select id="replyCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*),0)
+		FROM review
+        WHERE restaurantsNum =#{restaurantsNum}
+ </select>
+
+ <select id="reviewRead" parameterType="Integer" resultType="com.bd.foodorder.FoodOrder">
+   SELECT r.foodorderNum,r.restaurantsNum, r.content, TO_CHAR(r.created,'YY-MM-DD HH24:MI') created, starCount, reviewNum, u.userName, LISTAGG(menuName,',') WITHIN GROUP(ORDER BY f.foodorderNum)AS menuName
+   FROM review r
+   JOIN foodorder f ON r.foodorderNum = f.foodorderNum
+   JOIN orderdetail o ON o.foodorderNum = f.foodorderNum
+   JOIN restaurantMenu rm ON rm.menuNum = o.menuNum
+   JOIN user1 u ON r.userIdx = u.userIdx
+   WHERE r.reviewNum = #{reviewNum}
+   group by r.foodorderNum, r.content, TO_CHAR(r.created,'YY-MM-DD HH24:MI'), starCount, reviewNum, u.userName,r.restaurantsNum
+ </select>	 
+ 
+ <update id="updateReply" parameterType="com.bd.foodorder.FoodOrder">
+ 	UPDATE review SET reply = #{reply}, replyCreated = SYSDATE WHERE reviewNum = #{reviewNum} 
+ </update>
+
+	<select id="readRestaurant" parameterType="Integer" resultType="com.bd.foodorder.FoodOrder">
+		SELECT name, mutualName, licenseNumber, typecategoryNum, fctel, longitude, latitude, addr1,addr2, zip, r.restaurantsNum
+		FROM restaurants r
+		JOIN restaurantsinfo ri ON r.restaurantsNum = ri.restaurantsNum
+		WHERE r.restaurantsNum = #{restaurantsNum}
+	
+	</select>
+
+	<update id="updateRestaurant" parameterType="com.bd.foodorder.FoodOrder">
+		update restaurants SET 
+		name=#{name}, longitude=#{longitude}, latitude=#{latitude}, zip=#{zip}, addr1=#{addr1}, addr2=#{addr2}, typeCategoryNum=#{typeCategoryNum} 
+		WHERE restaurantsNum = #{restaurantsNum}
+	
+	</update>
+	
+	<update id="updateRestaurantInfo" parameterType="com.bd.foodorder.FoodOrder">
+		UPDATE restaurantsInfo SET
+		fctel=#{fctel}, mutualName=#{mutualName}, licenseNumber=#{licenseNumber} WHERE restaurantsNum = #{restaurantsNum}
+	
+	
+	</update>
+
+
+
+</mapper>
+

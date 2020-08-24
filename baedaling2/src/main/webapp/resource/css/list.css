@@ -1,0 +1,92 @@
+@charset "UTF-8";
+/* Search */
+
+#search {
+	float: right;
+	width: 280px;
+	height: 60px;
+	padding: 20px 0px 0px 0px;
+}
+
+#search form {
+	height: 41px;
+	margin: 0;
+	padding: 10px 0 0 20px;
+}
+
+#search fieldset {
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+
+#search-text {
+	width: 170px;
+	padding: 6px 5px 2px 5px;
+	border: 1px solid #DEDEDE;
+	background: #01DFD7;
+	text-transform: lowercase;
+	font: normal 11px Arial, Helvetica, sans-serif;
+	color: #5D781D;
+}
+
+#search-submit {
+	width: 50px;
+	height: 22px;
+	border: none;
+	background: #01DFD7;
+	color: #000000;
+}
+
+
+.button
+{
+	display: inline-block;
+	margin: 1em 0em;
+	background: #000;
+	padding: 1em 2em;
+	color: #FFFFFF;
+}
+
+#page .entry p{
+text-align: center;
+}
+
+
+.body-container{
+	margin: 80px auto;
+	width: 900px;
+}
+
+#list_table{
+ 	height: 50px;
+}
+
+#list_table2{
+ 	height: 45px;
+}
+
+
+#list_table th,td{
+	font-size: 14px;
+}
+
+#f_img2{
+	width: 70px;
+	height: 70px;
+}
+
+.btn {
+	color: gray;
+	font-weight:500;
+	border:1px solid #cccccc;
+	background-color:#ffffff;
+	text-align:center;
+	cursor:pointer;
+	padding:3px 10px 5px;
+	border-radius:4px;
+	font-family:"Malgun Gothic", "맑은 고딕", NanumGothic, 나눔고딕, 돋움, sans-serif;
+	margin-top: 20px;
+}
+
+

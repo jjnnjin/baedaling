@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fb">
+<select id="seq" resultType="Integer">
+	SELECT freeBoard_seq.NEXTVAL FROM dual
+</select>
+
+<insert id="insertFreeboard" parameterType="com.bd.freeboard.FreeBoard">
+	INSERT INTO freeBoard(num, userId, userName, subject, content, hitCount, created, useridx)
+	VALUES(#{num}, #{userId}, #{userName}, #{subject}, #{content,jdbcType=VARCHAR} ,0 ,SYSDATE ,#{useridx} )
+</insert>
+
+	<sql id="search-list">
+		<if test="condition=='all'">
+			( INSTR(subject, #{keyword}) &gt; 0
+				OR DBMS_LOB.INSTR(content, #{keyword}) &gt; 0 )
+		</if>
+		<if test="condition=='subject' ">
+			INSTR(subject, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='content'">
+			DBMS_LOB.INSTR( content, #{keyword}) &gt; 0 
+		</if>
+		<if test="condition=='userName'">
+			userName=#{keyword}
+		</if>
+		<if test="condition=='created'">
+			( TO_CHAR(created, 'YYYY-MM-DD') = #{keyword}
+				OR TO_CHAR(created, 'YYYYMMDD') = #{keyword} )
+		</if>
+	</sql>
+
+	<select id="listFreeboard" parameterType="map" resultType="com.bd.freeboard.FreeBoard">
+		SELECT f.num, f.userId, subject, hitCount, 
+		TO_CHAR(f.created,'YYYY-MM-DD') created, f.userName, 
+		NVL(replyCount,0) replyCount, NVL(fileCount, 0) fileCount
+		FROM freeBoard f
+		JOIN user1 u ON f.userIdx = u.userIdx
+		LEFT OUTER JOIN(
+			SELECT num, COUNT(*) fileCount FROM freeBoardFile
+			GROUP BY num
+		) c ON f.num=c.num
+		LEFT OUTER JOIN (
+			SELECT num, COUNT(*) replyCount FROM freeBoardReply
+			GROUP BY num
+		) r ON f.num = r.num
+		<where>
+			<if test="keyword!=null and keyword!=''">
+				<include refid="search-list"/>
+			</if>
+		</where>
+
+		ORDER BY f.num DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<select id="dataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*),0)
+		FROM freeBoard f
+		JOIN user1 u ON f.userId = u.userId
+		<where>
+			<if test="keyword!=null and keyword!=''">
+				<include refid="search-list"/>
+			</if>
+		</where>
+	</select>
+	
+	<update id="updateHitCount" parameterType="Integer">
+		UPDATE freeBoard SET hitCount=hitCount+1 WHERE num = #{num}
+	</update>
+	
+	
+	
+<!-- 글보기  -->	
+	<select id="readFreeBoard" parameterType="Integer" resultType="com.bd.freeboard.FreeBoard">
+		SELECT num, userId, userName, subject, content, created, hitCount
+		FROM freeBoard 
+		WHERE num = #{num}	
+	</select>
+
+
+	<!-- 이전글 -->
+	<select id="preReadBoard" parameterType="map" resultType="com.bd.freeboard.FreeBoard">
+		SELECT f.num, subject
+		FROM freeBoard f
+		JOIN user1 u ON f.userId=u.userId
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="search-list"/>
+			</if>
+			AND (num &gt; #{num})
+		</where>
+		ORDER BY num ASC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+
+    <!-- 다음글 -->
+    <select id="nextReadBoard" parameterType="map" resultType="com.bd.freeboard.FreeBoard">
+		SELECT f.num, subject
+		FROM freeBoard f
+		JOIN user1 u ON f.userId=u.userId
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="search-list"/>
+			</if>
+			AND (num &lt; #{num})
+		</where>
+		ORDER BY num ASC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+
+	<!-- 수정 -->
+	<update id="updateFreeboard" parameterType="com.bd.freeboard.FreeBoard">
+		UPDATE freeBoard SET subject=#{subject}, content=#{content, jdbcType=VARCHAR}
+		WHERE num = #{num}
+	</update>
+	
+
+	<!-- 삭제 -->
+	<delete id="deleteFreeBoard" parameterType="Integer">
+		DELETE FROM freeBoard WHERE num = #{num}
+	</delete>
+	
+<!-- 파일 -->
+
+	<insert id="insertFile" parameterType="com.bd.freeboard.FreeBoard">
+		INSERT INTO freeBoardFile(fileNum, num, saveFilename, originalFilename,fileSize)
+		 VALUES(freeBoardFile_seq.NEXTVAL, #{num}, #{saveFilename},#{originalFilename}, #{fileSize})
+	</insert>
+
+	<delete id="deleteFile" parameterType="map">
+		DELETE FROM freeBoardFile WHERE ${field} = #{num}
+	</delete>
+	
+	<select id="readFile" parameterType="Integer" resultType="com.bd.freeboard.FreeBoard">
+		SELECT fileNum, num, saveFilename, originalFilename, fileSize
+		FROM freeBoardFile
+	    WHERE fileNum=#{fileNum}      
+	</select>	
+	
+	<select id="listFile" parameterType="Integer" resultType="com.bd.freeboard.FreeBoard">
+		SELECT fileNum, num, saveFilename, originalFilename, fileSize
+		FROM freeBoardFile
+		WHERE num=#{num}    
+	</select>
+	
+	<!-- 좋아요 -->
+		<insert id="insertBoardLike" parameterType="map">
+		INSERT INTO freeBoardLike(num, userIdx) VALUES (#{num}, #{userIdx})
+	</insert>
+      
+	<!-- 게시글 좋아요 개수 -->
+	<select id="boardLikeCount" parameterType="Integer" resultType="Integer">
+		SELECT COUNT(*) FROM freeBoardLike WHERE num=#{num}
+	</select>
+	
+	<!-- 댓글 -->
+	<insert id="insertReply" parameterType="com.bd.freeboard.Reply">
+		INSERT INTO freeBoardReply(replyNum, num, userId, userName, content,created, userIdx)
+			VALUES(freeBoardReply_seq.NEXTVAL, #{num}, #{userId}, #{userName}, #{content}, SYSDATE, #{userIdx})
+	</insert>
+	
+	<select id="replyCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0) FROM freeBoardReply
+		WHERE num=#{num}
+	</select>
+	
+	<select id="listReply" parameterType="map" resultType="com.bd.freeboard.Reply">
+		SELECT replyNum, userId, userName, num, content, TO_CHAR(created,'YYYY-MM-DD') created
+		FROM freeBoardReply 
+		WHERE num=#{num}
+		ORDER BY replyNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	
+</mapper>

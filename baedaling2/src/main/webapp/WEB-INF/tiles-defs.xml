@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+	<definition name=".mainLayout" template="/WEB-INF/view/layout/layout3.jsp">
+	    <put-attribute name="title" value="spring" />
+	  	<put-attribute name="header" value="/WEB-INF/view/layout/header.jsp" />
+		<put-attribute name="body" value="/WEB-INF/view/main/main.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/view/layout/footer.jsp" />
+		<put-attribute name="topheader" value="/WEB-INF/view/layout/topheader.jsp"/>
+	</definition>
+	
+   <!-- 3단 관리자 -->
+	<definition name=".dashboardLayout" template="/WEB-INF/view/layout/dashboardLayout.jsp">
+	    <put-attribute name="title" value="spring" />
+	    <put-attribute name="side" value="/WEB-INF/view/layout/dashboardside.jsp"/>
+		<put-attribute name="body" value="/WEB-INF/view/dashboard/dashboard.jsp" />
+	</definition>
+	<definition name=".dashboard.*.*.*" extends=".dashboardLayout">
+		<put-attribute name="body" value="/WEB-INF/view/dashboard/{1}/{2}/{3}.jsp"/>
+	</definition>
+	<definition name=".dashboard.*.*" extends=".dashboardLayout">
+		<put-attribute name="body" value="/WEB-INF/view/dashboard/{1}/{2}.jsp"/>
+	</definition>
+	<definition name=".dashboard.*" extends=".dashboardLayout">
+    	<put-attribute name="body" value="/WEB-INF/view/dashboard/{1}.jsp" />
+	</definition>
+	
+	<definition name=".menuLayout" template="/WEB-INF/view/layout/dashboardLayout.jsp">
+	    <put-attribute name="title" value="spring" />
+	    <put-attribute name="side" value="/WEB-INF/view/layout/dashboardside.jsp"/>
+		<put-attribute name="body" value="/WEB-INF/view/dashboard/dashboard.jsp" />
+	</definition>
+	<definition name=".menu.*.*.*" extends=".menuLayout">
+		<put-attribute name="body" value="/WEB-INF/view/menu/{1}/{2}/{3}.jsp"/>
+	</definition>
+	<definition name=".mune.*.*" extends=".menuLayout">
+		<put-attribute name="body" value="/WEB-INF/view/menu/{1}/{2}.jsp"/>
+	</definition>
+	<definition name=".menu.*" extends=".menuLayout">
+    	<put-attribute name="body" value="/WEB-INF/view/menu/{1}.jsp" />
+	</definition>
+	
+	<definition name=".manageLayout" template="/WEB-INF/view/layout/layout3.jsp">
+	    <put-attribute name="title" value="spring" />
+	  	<put-attribute name="header" value="/WEB-INF/view/layout/header2.jsp" />
+		<put-attribute name="body" value="/WEB-INF/view/main/main.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/view/layout/footer.jsp" />
+		<put-attribute name="topheader" value="/WEB-INF/view/layout/topheader.jsp"/>
+	</definition>
+	<definition name=".manage.*.*.*" extends=".manageLayout">
+		<put-attribute name="body" value="/WEB-INF/view/manage/{1}/{2}/{3}.jsp"/>
+	</definition>
+	<definition name=".restaurant.*.*.*" extends=".manageLayout">
+		<put-attribute name="body" value="/WEB-INF/view/restaurant/{1}/{2}/{3}.jsp"/>
+	</definition>
+	<definition name=".inquire.list" extends=".manageLayout">
+		<put-attribute name="body" value="/WEB-INF/view/inquire/list.jsp"/>
+	</definition>
+	<definition name=".manage.*.*" extends=".manageLayout">
+		<put-attribute name="body" value="/WEB-INF/view/manage/{1}/{2}.jsp"/>
+	</definition>
+	<definition name=".restaurant.*.*" extends=".manageLayout">
+		<put-attribute name="body" value="/WEB-INF/view/restaurant/{1}/{2}.jsp"/>
+	</definition>
+	<definition name=".manage.*" extends=".manageLayout">
+    	  <put-attribute name="body" value="/WEB-INF/view/manage/{1}.jsp" />
+	</definition>
+	<definition name=".restaurant.*" extends=".manageLayout">
+    	  <put-attribute name="body" value="/WEB-INF/view/restaurant/{1}.jsp" />
+	</definition>
+	
+	<!-- 순서가 바뀌면 안됨(* 많은것이 위에) -->
+	<definition name=".*.*.*" extends=".mainLayout">
+		<put-attribute name="body" value="/WEB-INF/view/{1}/{2}/{3}.jsp"/>
+	</definition>
+	<definition name=".*.*" extends=".mainLayout">
+		<put-attribute name="body" value="/WEB-INF/view/{1}/{2}.jsp"/>
+	</definition>
+	<definition name=".*" extends=".mainLayout">
+    	  <put-attribute name="body" value="/WEB-INF/view/{1}.jsp" />
+	</definition>
+
+</tiles-definitions>

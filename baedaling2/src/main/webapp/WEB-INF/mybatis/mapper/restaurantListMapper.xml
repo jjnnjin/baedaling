@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="rsl">
+
+	<sql id="where-list">
+		<choose>
+			<when test="condition=='userId'">
+				INSTR(userId, #{keyword}) &gt;=1
+			</when>
+			<otherwise>
+				INSTR(${condition}, #{keyword}) &gt;=1
+			</otherwise>
+		</choose>
+	</sql>
+
+	<sql id="search-list">
+		<if test="condition=='name' ">
+			INSTR(name, #{keyword}) &gt;= 1
+		</if>
+		<if test="condition=='mutualName'">
+			INSTR( mutualName, #{keyword}) &gt;= 1
+		</if>
+		<if test="condition=='licenseNumber'">
+			licenseNumber=#{keyword}
+		</if>
+	</sql>
+
+
+
+
+
+
+	<!-- 가게 개수 -->
+	<select id="dataCount" parameterType="map" resultType="Integer">
+		SELECT COUNT(*)
+		FROM restaurants r
+		LEFT OUTER JOIN user1 u ON r.userIdx
+		= u.userIdx
+		LEFT OUTER JOIN restaurantsInfo r1 ON
+		r.restaurantsNum=r1.restaurantsNum
+		<where>
+			<if test="keyword!=null and keyword!='' ">
+				<include refid="where-list" />
+			</if>
+			<if test="enabled!=''">
+				AND r.enabled = #{enabled}
+			</if>
+			AND separate=1
+		</where>
+
+	</select>
+
+	<!-- 가게 리스트 -->
+	<select id="listRestaurant" parameterType="map"
+		resultType="com.bd.restaurantList.RestaurantList">
+		SELECT u.userIdx, name, u.userId, mutualName, licenseNumber, r.enabled,
+			   addr1, addr2, r.restaurantsNum
+		FROM restaurants r
+		LEFT OUTER JOIN user1 u ON r.userIdx = u.userIdx
+		LEFT OUTER JOIN restaurantsInfo r1 ON r.restaurantsNum=r1.restaurantsNum
+
+		<where>
+			<if test="keyword!=null and keyword!='' ">
+				<include refid="where-list" />
+			</if>
+			<if test="enabled!=''">
+				AND r.enabled = #{enabled}
+			</if>
+			AND separate=1
+		</where>
+
+		ORDER BY u.userIdx DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+
+	<!-- 가게 상세표 -->
+	<select id="readUser" parameterType="String"
+		resultType="com.bd.restaurantList.RestaurantList">
+		SELECT u.userIdx, name, u.userId, mutualName,r.restaurantsNum,
+		licenseNumber, r.enabled,
+		addr1, addr2  
+		FROM restaurants r
+		LEFT OUTER JOIN user1 u ON r.userIdx =
+		u.userIdx
+		LEFT OUTER JOIN restaurantsInfo r1 ON
+		r.restaurantsNum=r1.restaurantsNum
+		WHERE r.restaurantsNum=#{restaurantsNum}
+	</select>
+
+	<!-- alter창 가게수정 -->
+	<update id="updateUserEnabled" parameterType="map">
+		UPDATE restaurants SET
+		enabled=#{enabled} WHERE restaurantsNum=#{restaurantsNum}
+	</update>
+
+	<!-- 대기중가게 리스트 -->
+	<select id="listWaitRestaurant" parameterType="map"
+		resultType="com.bd.restaurantList.RestaurantList">
+		SELECT r.restaurantsNum, u.userIdx,name, u.userId, mutualName, licenseNumber, r.addr1, r.addr2,
+		r.ready
+		FROM restaurants r
+		JOIN user1 u ON r.userIdx = u.userIdx
+		JOIN restaurantsInfo ri ON r.restaurantsNum = ri.restaurantsNum
+
+		<where>
+			<if test="keyword!=null and keyword!='' ">
+				<include refid="search-list" />
+			</if>
+			<if test="ready!=''">
+				AND ready = #{ready}
+			</if>
+		</where>
+
+		ORDER BY u.userIdx DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS
+		ONLY
+	</select>
+
+
+	<!-- 승인대기가게 개수 -->
+	<select id="watiDataCount" parameterType="map" resultType="Integer">
+		SELECT COUNT(*)
+		FROM restaurants r
+		JOIN user1 u ON r.userIdx = u.userIdx
+		JOIN restaurantsInfo ri ON r.restaurantsNum = ri.restaurantsNum
+		<where>
+			<if test="keyword!=null and keyword!='' ">
+				<include refid="search-list" />
+			</if>
+			<if test="ready!=''">
+				AND ready = #{ready}
+			</if>
+		</where>
+
+	</select>
+	
+	<update id="updateReady" parameterType="Integer" >
+		UPDATE restaurants SET ready = 2 WHERE restaurantsNum = #{restaurantsNum}
+	
+	</update>
+
+</mapper>

@@ -1,0 +1,101 @@
+@charset "UTF-8";
+#container_join{
+	margin : 0px auto;
+}
+
+#body_line table{
+	margin : 0px auto;
+}
+
+.textinfo_tr{
+	text-align: left;
+    height: 15px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #4c4c4c;;
+	
+}
+
+.inputinfo_tr{
+	height : 60px;
+	text-align : center;
+}
+
+.input_normal {
+	width: 440px;
+	height: 31px;
+	padding: 10px 14px;
+	border : 1px solid #c8c8c8;
+}
+
+.birth_tr{
+	width: 133px;
+	height: 29px;
+	padding : 11px 14px;
+	margin-right: 5px;
+	border : 1px solid #c8c8c8;
+}
+
+.etch_list3{
+	height : 20px;
+	margin-bottom: 10px;
+}
+
+.birth_tr_select{
+	width: 116px;
+	height: 55px;
+	font-weight: 600;
+}
+
+.city_search_btn{
+    width: 160px;
+    height: 52px;
+    background: #ec6258;;
+    box-shadow: none;
+    border: 1px solid #c8c8c8;
+    font-weight: 700;
+    color: white;
+    border-radius: 2px;
+}
+
+.send_info_btn{
+	width: 472px;
+    height: 60px;
+    padding: 10px 14px;
+    background: #ec6258;;
+    box-shadow: none;
+    border: 1px solid #c8c8c8;
+    font-weight: 700;
+    color: white;
+    border-radius: 2px;
+    margin-bottom: 50px;
+    margin-top: 30px;
+}
+#head_line{
+	text-align: center;
+    font-family: initial;
+    font-size: 60px;
+    font-weight: 900;
+    margin-top: 48px;
+    margin-bottom: 35px;
+    color: #ec6258;
+}
+
+#find_lck_btn{
+	margin: 0px;
+    padding: 0px;
+    width: 200px;
+    height: 30px;
+    background: #ec6258;
+    color: white;
+    border: 1px solid #c8c8c8;
+    font-weight: 600;
+}
+
+#select_typecategoryNum{
+	width: 470px;
+    height: 53px;
+    padding: 10px 14px;
+    border: 1px solid #c8c8c8;
+    font-weight: 600;
+}

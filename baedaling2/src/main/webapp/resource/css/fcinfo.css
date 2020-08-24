@@ -1,0 +1,123 @@
+@charset "UTF-8";
+
+ul li{
+	color: #333;
+	list-style: none;
+	font-size: 90%;
+}
+
+.storeBox{
+	width: 100%;
+	margin: 0px auto;
+	background-color: #f9f9fa;
+}
+
+.store_basic{
+	width: 800px;
+	margin: 30px auto;
+	background-color: white;
+}
+
+
+#shop_title{
+	font-size : 14.5px;
+	height : 40px;
+	padding-top : 10px;
+	padding-bottom : 5px;
+	padding-left : 9px;
+	border-top: 1px solid #dadadb;
+}
+
+#store_content{
+	border-top: 1px solid #dadadb;
+	border-bottom: 1px solid #dadadb;
+	padding: 5px;
+}
+
+#store_img{
+	border : 0.5px solid #dadadb;
+	margin : 4px 5px;
+	width: 70px;
+	height: 70px;
+	float: left;
+}
+
+
+#st_notice{
+	border-top: 1px solid #dadadb;
+	height: 50px;
+	padding-top: 5px;
+	padding-left: 10px;
+}
+
+.st_subClick{
+	margin-top: 15px;
+}
+
+
+#st_menu_btn{
+	border: 1px solid #dadadb;
+	width: 259px;
+	height: 40px;
+	background-color: white;
+}
+
+#st_review_btn{
+	border: 1px solid #dadadb;
+	width: 259px;
+	height: 40px;
+	background-color: white;
+}
+
+#st_info{
+	border: 1px solid #dadadb;
+	width: 259px;
+	height: 40px;
+	background-color: white;
+}
+
+button{
+	border: 0;
+	outline: 0;
+	
+}
+
+#st_menu_btn:hover {
+	border-bottom: 3px solid #38BCC6; 
+}
+
+#st_info:hover {
+	border-bottom: 3px solid #38BCC6; 
+}
+
+#st_review_btn:hover {
+	border-bottom: 3px solid #38BCC6; 
+}
+
+#light_gray{
+	color:#A0A1A2;
+}
+
+#red{
+	color:#F0001E
+}
+
+
+/* 가게정보 */
+
+.infoContent{
+	width: 800px; 
+	height: 700px;
+	margin: 0px auto;
+	border-top: none;
+}
+
+#info_title{
+	border-bottom: 0.5px dotted #dadadb;
+	padding: 10px;
+}
+
+#info_content2{
+	padding: 10px;
+	margin-bottom: 5px;
+}

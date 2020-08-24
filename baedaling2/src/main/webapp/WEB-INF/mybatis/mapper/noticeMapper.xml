@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="notice">
+	<select id="seq" resultType="Integer">
+		SELECT notice_seq.NEXTVAL FROM dual
+	</select>
+	
+	<insert id="insertNotice" parameterType="com.bd.notice.Notice">
+		INSERT INTO notice(num, userName, userId, subject, content, checkNotice, hitCount, created, userIdx)
+		VALUES(#{num}, #{userName}, #{userId}, #{subject},
+					#{content}, #{checkNotice}, 0, SYSDATE, #{userIdx})
+	</insert>
+	
+	<insert id="insertFile" parameterType="com.bd.notice.Notice">
+		INSERT INTO noticeFile(fileNum, num, saveFilename, 
+					originalFilename, fileSize) VALUES
+				(noticeFile_seq.NEXTVAL, #{num}, #{saveFilename},
+					#{originalFilename}, #{fileSize})
+	</insert>
+	
+	
+	
+ 	<sql id="where-list">
+		<if test="condition=='all' ">
+			( INSTR(subject, #{keyword}) &gt; 0
+				OR DBMS_LOB.INSTR(content, #{keyword}) &gt; 0 )
+		</if>
+		<if test="condition=='subject' ">
+			INSTR(subject, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='content' ">
+			DBMS_LOB.INSTR( content, #{keyword}) &gt; 0 
+		</if>
+		<if test="condition=='userName' ">
+			userName=#{keyword}
+		</if>
+		<if test="condition=='created' ">
+			( TO_CHAR(created, 'YYYY-MM-DD') = #{keyword}
+				OR TO_CHAR(created, 'YYYYMMDD') = #{keyword} )
+		</if>
+	</sql>
+	
+	<select id="dataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM notice n
+		<where>
+			<if test="keyword != null and keyword!=''  ">
+				<include refid="where-list"/>
+			</if>
+		</where>
+	</select>
+	
+ 	<select id="listNotice" parameterType="map" resultType="com.bd.notice.Notice">
+		SELECT n.num, n.userId, n.userName, subject, hitCount, created,NVL(fileCount, 0) fileCount
+		FROM notice n
+		LEFT OUTER JOIN (
+			SELECT num, COUNT(*) fileCount FROM noticeFile
+			GROUP BY num
+		) f ON n.num=f.num
+		<where>
+			<if test="keyword != null and keyword != ''">
+				<include refid="where-list"/>
+			</if>
+		</where>
+		ORDER BY num DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	 </select>
+	 
+	 <select id="checkList" resultType="com.bd.notice.Notice">
+		SELECT n.num, checkNotice, userId, userName, subject, hitCount, 
+		       created, NVL(fileCount, 0) fileCount, userIdx,
+				NVL(fileCount, 0) fileCount
+		FROM notice n
+		LEFT OUTER JOIN (
+			SELECT num, COUNT(*) fileCount FROM noticeFile
+			GROUP BY num
+		) f ON n.num=f.num
+		WHERE checkNotice =  1
+		ORDER BY created DESC ,num DESC
+	</select>
+	 
+	 
+	 
+   <select id="readNotice" parameterType="Integer" resultType="com.bd.notice.Notice">
+		SELECT num, n.userId, n.userName, subject, content, created, hitCount
+		FROM notice n
+		WHERE num = #{num}
+	</select>
+	  
+ 	<select id="listFile" parameterType="Integer" resultType="com.bd.notice.Notice">
+		SELECT fileNum, num, saveFilename, originalFilename, fileSize
+		FROM noticeFile
+		WHERE num=#{num}    
+	</select>
+
+	<select id="readFile" parameterType="Integer" resultType="com.bd.notice.Notice">
+		SELECT fileNum, num, saveFilename, originalFilename, fileSize
+		FROM noticeFile
+	    WHERE fileNum=#{fileNum}      
+	</select>
+	
+	<delete id="deleteFile" parameterType="map">
+		DELETE FROM noticeFile WHERE ${field} = #{num}
+	</delete>
+	
+	<select id="preReadNotice" parameterType="map" resultType="com.bd.notice.Notice">
+		SELECT num, subject
+		FROM notice n
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (num &gt; #{num})
+		</where>
+		ORDER BY num ASC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+	
+	<select id="nextReadNotice" parameterType="map" resultType="com.bd.notice.Notice">
+		SELECT num, subject
+		FROM notice 
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (num &lt; #{num})
+		</where>
+		ORDER BY num DESC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+	
+	<update id="updateNotice" parameterType="com.bd.notice.Notice">
+		UPDATE notice SET subject=#{subject},
+				content=#{content}, checkNotice=#{checkNotice}
+		WHERE num=#{num}
+	</update>
+	
+	<delete id="deleteNotice" parameterType="Integer">
+		DELETE FROM notice WHERE num=#{num}
+	</delete>
+	
+	<update id="updateHitCount" parameterType="Integer">
+		UPDATE notice SET hitCount=hitCount+1 WHERE num = #{num}
+	</update>
+
+</mapper>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="rc">
+	<sql id="search-list">
+		<choose>
+			<when test="category=='any'">
+				(INSTR(subject,#{key})&gt;0
+					OR
+				DBMS_LOB.INSTR(content,#{key})&gt;0
+				)
+			</when>
+			<when test="category=='created'">
+				(TO_CHAR(r.created,'YYYY-MM-DD') = #{key}
+					OR
+				 TO_CHAR(r.created,'YYYYMMDD') = #{key}
+				)
+			</when>
+			<when test="category=='content'">
+				DBMS_LOB.INSTR(content,#{key}) &gt; 0
+			</when>
+			<otherwise>
+				INSTR(${category},#{key})&gt;0
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<select id="seq" resultType="Integer">
+		SELECT recommendboard_seq.NEXTVAL FROM dual
+	</select>
+	<insert id="insertRecommend" parameterType="com.bd.recommend.Recommend">
+		INSERT INTO recommendBoard(num, userIdx, userId, userName, subject, content, hitCount, created)
+							VALUES(#{num}, #{userIdx}, #{userId}, #{userName}, #{subject},#{content}, 0, SYSDATE)
+	</insert>
+	<insert id="insertFile" parameterType="com.bd.recommend.Recommend">
+		INSERT INTO recommendBoardFile(fileNum, num, saveFilename, originalFilename, fileSize) VALUES(recommendboardfile_seq.NEXTVAL, #{num}, #{saveFilename}, #{originalFilename}, #{fileSize})
+	</insert>
+	
+	<select id="listRecommend" parameterType="map" resultType="com.bd.recommend.Recommend">
+		SELECT r.num, r.userId, subject, hitCount, TO_CHAR(r.created,'YYYY-MM-DD') created, r.userName, NVL(replyCount,0) replyCount
+		FROM recommendboard r
+		JOIN user1 m ON r.userIdx = m.userIdx
+		LEFT OUTER JOIN(
+			SELECT num, COUNT(*) replyCount FROM recommendBoardReply
+			GROUP BY num
+		) c ON r.num=c.num
+		<where>
+			<if test="key!=null and key!=''">
+				<include refid="search-list"/>
+			</if>
+		</where>
+		ORDER BY r.num DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{shownum} ROWS ONLY
+	</select>
+	
+	<select id="dataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*),0)
+		FROM recommendBoard r
+		JOIN user1 u ON r.userId = u.userId
+		<where>
+			<if test="key!=null and key!=''">
+				<include refid="search-list"/>
+			</if>
+		</where>
+	</select>
+	
+	<select id="readpage" parameterType="Integer" resultType="com.bd.recommend.Recommend">
+		SELECT num, userId, userName, subject, content, created, hitCount
+		FROM recommendboard n
+		WHERE num = #{num}
+	</select>
+	
+	<update id="updateHitCount" parameterType="Integer">
+		UPDATE recommendboard SET hitCount=hitCount+1 WHERE num = #{num}
+	</update>
+	
+	<select id="preReadRecommend" parameterType="map" resultType="com.bd.recommend.Recommend">
+		SELECT num, subject
+		FROM recommendboard n
+		<where>
+			<if test="key != null and key != '' ">
+				<include refid="search-list"/>
+			</if>
+			AND (num &gt; #{num})
+		</where>
+		ORDER BY num ASC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+    
+    <select id="nextReadRecommend" parameterType="map" resultType="com.bd.recommend.Recommend">
+		SELECT num, subject
+		FROM recommendboard n
+		<where>
+			<if test="key != null and key != '' ">
+				<include refid="search-list"/>
+			</if>
+			AND (num &lt; #{num})
+		</where>
+		ORDER BY num DESC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+    
+	<select id="listFile" parameterType="Integer" resultType="com.bd.recommend.Recommend">
+		SELECT fileNum, num, saveFilename, originalFilename, fileSize
+		FROM recommendboardFile
+		WHERE num=#{num}    
+	</select>
+	
+	<select id="readFile" parameterType="Integer" resultType="com.bd.recommend.Recommend">
+		SELECT fileNum, num, saveFilename, originalFilename, fileSize
+		FROM recommendboardFile
+	    WHERE fileNum=#{fileNum}      
+	</select>
+	
+	<delete id="deleteRecommend" parameterType="Integer">
+		DELETE FROM recommendboard WHERE num=#{num}
+	</delete>
+	
+	<delete id="deleteFile" parameterType="map">
+		DELETE FROM recommendboardFile WHERE ${field} = #{num}
+	</delete>
+	
+	<insert id="insertRecommendLike" parameterType="map">
+		INSERT INTO RECOMMENDBOARDLIKE(num, userIdx) VALUES (#{num}, #{userIdx})
+	</insert>
+	
+	<select id="rocommendLikeCount" parameterType="Integer" resultType="Integer">
+		SELECT COUNT(*) FROM RECOMMENDBOARDLIKE WHERE num=#{num}
+	</select>
+	
+	<insert id="insertReply" parameterType="com.bd.recommend.RecommendReply">
+		INSERT INTO recommendBoardReply(replyNum, num, userId, userName, content, created, userIdx)
+			VALUES (RECOMMENDBOARDREPLY_SEQ.NEXTVAL, #{num}, #{userId}, #{userName}, #{content}, SYSDATE, #{userIdx})
+	</insert>
+	
+	<select id="listReply" parameterType="map" resultType="com.bd.recommend.RecommendReply">
+		SELECT replyNum, userId, userName, num, content, TO_CHAR(created,'YYYY-MM-DD') created
+		FROM recommendBoardReply
+		WHERE num=#{num}
+		ORDER BY replyNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<select id="replyCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0) FROM recommendBoardReply
+		WHERE num=#{num}
+	</select>
+	
+	<delete id="deleteReply" parameterType="map">
+		DELETE FROM recommendBoardReply WHERE replynum=#{replyNum}
+	</delete>
+	
+	<update id = "updateRecommend">
+		UPDATE recommendBoard SET subject = #{subject}, content = #{content} WHERE num = #{num}
+	
+	</update>
+</mapper>

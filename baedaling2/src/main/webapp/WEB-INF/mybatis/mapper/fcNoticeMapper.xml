@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fcnotice">
+	<select id="seq" resultType="Integer">
+		SELECT fcnotice_seq.NEXTVAL FROM dual
+	</select>
+	
+	<insert id="insertNotice" parameterType="com.bd.fcnotice.FcNotice">
+		INSERT INTO fcnotice(num, userId, userName, subject, content, important, hitCount, created, userIdx)
+				VALUES(#{num}, #{userId},#{userName}, #{subject},
+					#{content}, #{important}, 0, SYSDATE,#{userIdx})
+	</insert>
+	<insert id = "insertFile" parameterType="com.bd.fcnotice.FcNotice">
+		INSERT INTO fcnoticefile(fileNum, num, saveFilename, originalFilename, fileSize)
+			VALUES(fcnoticefile_seq.NEXTVAL, #{num}, #{saveFilename},#{originalFilename},#{fileSize})
+	
+	</insert>
+	
+	
+	
+	<sql id="where-list">
+		<if test="condition=='all' ">
+			( INSTR(subject, #{keyword}) &gt; 0
+				OR DBMS_LOB.INSTR(content, #{keyword}) &gt; 0 )
+		</if>
+		<if test="condition=='subject' ">
+			INSTR(subject, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='content' ">
+			DBMS_LOB.INSTR( content, #{keyword}) &gt; 0 
+		</if>
+	</sql>
+	
+	<select id="dataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM fcnotice 
+		<where>
+			<if test="keyword != null and keyword!=''  ">
+				<include refid="where-list"/>
+			</if>
+		</where>
+	</select>
+	
+	<select id="listNotice" parameterType="map" resultType="com.bd.fcnotice.FcNotice">
+		SELECT n.num, important, userId, userName, subject, hitCount, 
+		       created, NVL(fileCount, 0) fileCount, userIdx
+		FROM fcnotice n
+		LEFT OUTER JOIN (
+			SELECT num, COUNT(*) fileCount FROM fcnoticeFile
+			GROUP BY num
+		) f ON n.num=f.num
+		<where>
+			<if test="keyword != null and keyword != ''">
+				<include refid="where-list"/>
+			</if>
+		</where>
+		ORDER BY num DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	 </select>
+	 
+	 <select id="listImportant" resultType="com.bd.fcnotice.FcNotice">
+		SELECT n.num, important, userId, userName, subject, hitCount, 
+		       created, NVL(fileCount, 0) fileCount, userIdx,
+				NVL(fileCount, 0) fileCount
+		FROM fcnotice n
+		LEFT OUTER JOIN (
+			SELECT num, COUNT(*) fileCount FROM fcnoticeFile
+			GROUP BY num
+		) f ON n.num=f.num
+		WHERE important =  1
+		ORDER BY created DESC ,num DESC
+	</select>
+	 
+	<select id="readNotice" parameterType="Integer" resultType="com.bd.fcnotice.FcNotice">
+		SELECT num, userId, userName, subject, content, created, hitCount, important
+			FROM fcnotice
+			WHERE num = #{num}
+	</select>
+	 
+	 <select id="listFile" parameterType="Integer" resultType="com.bd.fcnotice.FcNotice">
+		SELECT fileNum, num, saveFilename, originalFilename, fileSize
+		FROM fcnoticeFile
+		WHERE num=#{num}    
+	</select>
+	
+	<select id="readFile" parameterType="Integer" resultType="com.bd.fcnotice.FcNotice">
+		SELECT fileNum, num, saveFilename, originalFilename, fileSize
+		FROM fcnoticeFile
+	    WHERE fileNum=#{fileNum}      
+	</select>
+	
+	<delete id="deleteFile" parameterType="map">
+		DELETE FROM fcnoticeFile WHERE ${field} = #{num}
+	</delete>
+	
+	<select id="preReadNotice" parameterType="map" resultType="com.bd.fcnotice.FcNotice">
+		SELECT num, subject
+		FROM fcnotice n
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (num &gt; #{num})
+		</where>
+		ORDER BY num ASC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+	
+	<select id="nextReadNotice" parameterType="map" resultType="com.bd.fcnotice.FcNotice">
+		SELECT num, subject
+		FROM fcnotice 
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (num &lt; #{num})
+		</where>
+		ORDER BY num DESC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+	
+	<update id="updateNotice" parameterType="com.bd.fcnotice.FcNotice">
+		UPDATE fcnotice SET subject=#{subject},
+				content=#{content}, important=#{important}
+		WHERE num=#{num}
+	</update>
+	
+	<delete id="deleteNotice" parameterType="Integer">
+		DELETE FROM fcnotice WHERE num=#{num}
+	</delete>
+	
+	<update id="updateHitCount" parameterType="Integer">
+		UPDATE fcnotice SET hitCount=hitCount+1 WHERE num = #{num}
+	</update>
+	
+</mapper>

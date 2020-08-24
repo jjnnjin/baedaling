@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mypage">
+
+<!-- 회원정보 -->
+<select id="readMypage" parameterType="Integer" resultType="com.bd.mypage.Mypage">
+	SELECT u1.userIdx, userId, userPwd, userName, TO_CHAR(birth, 'YYYY-MM-DD') birth,
+	tel, email, zip, addr1, addr2, TO_CHAR(created_date, 'YYYY-MM-DD') created_date
+	FROM user1 u1
+	LEFT OUTER JOIN user2 u2 ON u1.userIdx = u2.userIdx
+	WHERE u1.userIdx = #{userIdx}
+</select>
+
+<!-- 회원정보수정 -->
+<update id="updateuser1" parameterType="com.bd.mypage.Mypage">
+	UPDATE user1 SET userName=#{userName}, userPwd=#{userPwd}
+	WHERE userIdx = #{userIdx}
+</update>
+	
+<update id="updateuser2" parameterType="com.bd.mypage.Mypage">
+	UPDATE user2 SET birth=#{birth}, email=#{email}, tel=#{tel}, zip=#{zip},
+	addr1=#{addr1}, addr2=#{addr2}, longitude=#{longitude}, latitude=#{latitude}
+	WHERE userIdx = #{userIdx}
+</update>
+
+<select id="dataCount" parameterType="map" resultType="Integer">
+	SELECT NVL(COUNT(*),0)FROM(
+SELECT f.foodOrderNum, TO_CHAR(foodOrderDate,'YY-MM-DD HH:MI') foodOrderDate,
+		   foodOrderTotalPrice, f.restaurantsNum, rr.name, foodOrderState,
+           LISTAGG(menuName,',') WITHIN GROUP(ORDER BY f.foodorderNum) AS menuName
+	FROM foodorder f 
+    JOIN user1 u ON f.userIdx = u.userIdx
+    LEFT OUTER JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+    LEFT OUTER JOIN restaurantMenu rm ON o.menuNum = rm.menuNum
+    LEFT OUTER JOIN restaurants rr ON rr.restaurantsNum = f.restaurantsNum
+    WHERE u.userIdx = #{userIdx}
+    GROUP BY f.foodOrderNum, TO_CHAR(foodOrderDate,'YY-MM-DD HH:MI'), foodOrderTotalPrice, f.restaurantsNum, 
+	rr.name, foodOrderState)
+</select>
+
+<!-- 주문내역 -->
+<select id="orderList" parameterType="map" resultType="com.bd.mypage.Mypage">
+SELECT f.foodOrderNum, TO_CHAR(foodOrderDate,'YY-MM-DD HH:MI') foodOrderDate,
+		   foodOrderTotalPrice, f.restaurantsNum, rr.name, foodOrderState,
+           LISTAGG(menuName,',') WITHIN GROUP(ORDER BY f.foodorderNum) AS menuName
+	FROM foodorder f 
+    JOIN user1 u ON f.userIdx = u.userIdx
+    LEFT OUTER JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+    LEFT OUTER JOIN restaurantMenu rm ON o.menuNum = rm.menuNum
+    LEFT OUTER JOIN restaurants rr ON rr.restaurantsNum = f.restaurantsNum
+    WHERE u.userIdx = #{userIdx}
+    GROUP BY f.foodOrderNum, TO_CHAR(foodOrderDate,'YY-MM-DD HH:MI'), foodOrderTotalPrice, f.restaurantsNum, 
+	rr.name, foodOrderState
+    ORDER BY f.foodOrderNum DESC
+	OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+</select>
+
+<select id="orderdetailList" parameterType="map" resultType="com.bd.mypage.Mypage">
+SELECT f.foodOrderNum, TO_CHAR(foodOrderDate,'YY-MM-DD HH:MI') foodOrderDate, foodOrderAddr, fctel,
+		   foodOrderTotalPrice, f.restaurantsNum, rr.name, memo, foodOrderHowPay
+	FROM foodorder f 
+    JOIN user1 u ON f.userIdx = u.userIdx
+    JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+    JOIN restaurants rr ON rr.restaurantsNum = f.restaurantsNum
+    JOIN restaurantsInfo ri ON ri.restaurantsNum = rr.restaurantsNum
+    WHERE u.userIdx = #{userIdx} AND f.foodorderNum = #{foodOrderNum}
+    group by f.foodorderNum, TO_CHAR(foodOrderDate,'YY-MM-DD HH:MI') , foodOrderAddr, fctel, 
+    f.restaurantsNum, rr.name, foodOrderState, memo, foodOrderHowPay, foodOrderTotalPrice
+</select>
+
+<select id="orderdetailMenu" parameterType="map" resultType="com.bd.mypage.Mypage">
+SELECT menuName, qty, OrderOnePrice
+	FROM foodorder f 
+    JOIN user1 u ON f.userIdx = u.userIdx
+    LEFT OUTER JOIN orderdetail o ON f.foodorderNum = o.foodorderNum
+    LEFT OUTER JOIN restaurantMenu rm ON o.menuNum = rm.menuNum
+    WHERE u.userIdx = #{userIdx} AND f.foodorderNum = #{foodOrderNum}
+</select>
+
+<!-- 내가 쓴 자유게시판 -->
+<select id="freelist" parameterType="map" resultType="com.bd.mypage.Mypage">
+SELECT f.num, f.userId, f.userIdx, subject, hitCount, 
+		TO_CHAR(f.created,'YYYY-MM-DD') created, f.userName, 
+		NVL(replyCount,0) replyCount, NVL(fileCount, 0) fileCount
+		FROM freeBoard f
+		JOIN user1 u ON f.userIdx = u.userIdx
+		LEFT OUTER JOIN(
+			SELECT num, COUNT(*) fileCount FROM freeBoardFile
+			GROUP BY num
+		) c ON f.num=c.num
+		LEFT OUTER JOIN (
+			SELECT num, COUNT(*) replyCount FROM freeBoardReply
+			GROUP BY num
+		) r ON f.num = r.num
+		WHERE u.userIdx = #{userIdx}
+		ORDER BY f.num DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+</select>
+
+<select id="freeCount" parameterType="map" resultType="Integer">
+	SELECT NVL(COUNT(*),0)
+	FROM freeBoard f
+	JOIN user1 u ON f.userIdx = u.userIdx
+	WHERE u.userIdx = #{userIdx}
+</select>
+	
+<!-- 내가 쓴 추천 게시판 -->
+<select id="recommendlist" parameterType="map" resultType="com.bd.mypage.Mypage">
+		SELECT r.num, r.userId, subject, hitCount, TO_CHAR(r.created,'YYYY-MM-DD') created, r.userName, NVL(replyCount,0) replyCount
+		FROM recommendboard r
+		JOIN user1 u ON r.userIdx = u.userIdx
+		LEFT OUTER JOIN(
+			SELECT num, COUNT(*) replyCount FROM recommendBoardReply
+			GROUP BY num
+		) c ON r.num=c.num
+		WHERE u.userIdx = #{userIdx}
+		ORDER BY r.num DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+</select>
+ 
+<select id="recommendCount" parameterType="map" resultType="Integer">
+	SELECT NVL(COUNT(*),0)
+	FROM recommendboard r
+	JOIN user1 u ON r.userIdx = u.userIdx
+	WHERE u.userIdx = #{userIdx}
+</select>
+
+<!-- 리뷰 작성 확인 -->
+<select id="checkReview" parameterType="map" resultType="Integer">
+	SELECT COUNT(*) FROM review WHERE restaurantsNum=#{restaurantsNum} AND foodOrderNum=#{foodOrderNum} AND userIdx=#{userIdx}
+</select>
+
+<!-- 내가 쓴 리뷰 & 리뷰 삭제 -->
+<select id="reviewlist" parameterType="map" resultType="com.bd.mypage.Mypage">
+	SELECT r.foodorderNum, r.reviewNum,
+	    r.userIdx, r.content, TO_CHAR(r.created, 'YYYY-MM-DD') created,
+	    starCount, r.reviewNum, r.restaurantsNum, name, r.reply, TO_CHAR(r.replycreated, 'YYYY-MM-DD') replycreated
+		FROM review r
+	    JOIN user1 u ON r.userIdx = u.userIdx
+	    JOIN foodorder f ON f.foodorderNum = r.foodorderNum
+	    JOIN restaurants re ON re.restaurantsNum = r.restaurantsNum
+	    WHERE u.userIdx = #{userIdx}
+	    ORDER BY r.reviewNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+</select>
+
+<select id="reviewCount" parameterType="map" resultType="Integer">
+	SELECT NVL(COUNT(*),0)
+	FROM review r
+	JOIN user1 u ON r.userIdx = u.userIdx
+	WHERE u.userIdx = #{userIdx}
+</select>
+
+<delete id="deleteReview" parameterType="Integer">
+	DELETE FROM review
+	WHERE reviewNum=#{reviewNum}
+</delete>
+
+<!-- 내가 쓴 문의 -->
+<select id="inquirelist" parameterType="map" resultType="com.bd.mypage.Mypage">
+SELECT i.Num, u.userId, subject, TO_CHAR(i.created, 'YYYY-MM-DD') created, answer
+		FROM inquire i
+		JOIN user1 u ON i.userId=u.userId
+		WHERE u.userIdx = #{userIdx}
+	    ORDER BY i.Num DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+</select>
+
+<select id="inquireCount" parameterType="map" resultType="Integer">
+	SELECT NVL(COUNT(*),0)
+	FROM inquire i
+	JOIN user1 u ON i.userId = u.userId
+	WHERE u.userIdx = #{userIdx}
+</select>
+
+</mapper>

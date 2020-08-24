@@ -1,0 +1,106 @@
+@charset "UTF-8";
+
+ *:focus { outline:none; }
+
+#reviewTable{
+	background-color: white;
+	margin-top : 20px;
+	margin-left : 340px;
+	width: 1200px;
+	height: 400px;
+}
+
+
+#review_button1{
+	background-color: white;
+	height : 45px;
+	width: 50%;
+	border : 0.5px solid #F9F9FA; 
+	text-align: center;
+	font-family: '배달의민족 한나체 Pro', '배달의민족한나체Pro';
+	font-size: 20px;
+}
+
+#review_button2{
+	background-color: white;
+	height : 45px;
+	width: 50%;
+	border : 0.5px solid #F9F9FA; 
+	text-align: center;
+	font-family: '배달의민족 한나체 Pro', '배달의민족한나체Pro';
+	font-size: 20px;
+}
+
+#review_button1:hover {
+	border : 0.5px solid #F9F9FA; 
+	background-color: #38BCC6;
+}
+
+#review_button1:link {
+	border : 0.5px solid #F9F9FA; 
+	background-color: #38BCC6;
+}
+
+
+#review_button2:hover {
+	border : 0.5px solid #F9F9FA; 
+	background-color: #38BCC6;
+}
+
+#review_button:after {
+border : 0.5px solid #F9F9FA; 
+	outline: 0;
+	
+}
+
+.ellipsis {
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  word-wrap:normal;
+  overflow:hidden;
+}
+
+<!-- 마이페이지 '내가 쓴 리뷰' 관련 -->
+.subtitle {
+	padding-left : 20px;
+	width: 100px;
+	color: gray;
+}
+
+#ftitle {
+	color: gray; 
+	padding-left: 10px;
+}
+
+.subtitle2 {
+	padding-left : 20px;
+	width: 620px;
+	height:28px;
+	color: gray;
+	border: 1px solid #BDBDBD;
+	font-weight: bold;
+	background-color: #f8f8f8; 
+}
+
+.reviewDeletebtn {
+	color: gray;
+	font-weight:500;
+	border:1px solid #cccccc;
+	background-color:#ffffff;
+	text-align:center;
+	cursor:pointer;
+	padding:auto;
+	border-radius:4px;
+	font-family:"Malgun Gothic", "맑은 고딕", NanumGothic, 나눔고딕, 돋움, sans-serif;
+	float: right;
+	margin-right: 10px;
+	width: 40px;
+	height: 20px;
+}
+
+
+.review_box {
+	width: 870px;
+	margin: 10px;
+	padding-top: 20px;
+}

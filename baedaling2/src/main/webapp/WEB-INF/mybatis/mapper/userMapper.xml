@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="user">
+	<select id="loginUser" parameterType="String"
+		resultType="com.bd.user.User">
+		SELECT userIdx, userId, userName, userPwd, enabled,
+		created_date, separate
+		FROM user1
+		WHERE userId = #{userId} AND enabled = 1
+	</select>
+	<select id="selectidx" resultType="Integer">
+		SELECT user_seq.NEXTVAL FROM
+		dual
+	</select>
+	<select id="selectfcnum" resultType="Integer">
+		SELECT
+		restaurants_seq.NEXTVAL FROM dual
+	</select>
+
+
+	<insert id="insertuser0" parameterType="INTEGER">
+		INSERT INTO
+		user0(userIdx,membership) VALUES(#{idx},0)
+	</insert>
+	<insert id="insertuser1" parameterType="com.bd.user.User">
+		INSERT INTO
+		user1(userIdx,userId,enabled,userName,userPwd,created_date,separate)
+		VALUES(#{userIdx},#{userId},1,#{userName},#{userPwd},SYSDATE,#{separate})
+	</insert>
+	<insert id="insertuser2" parameterType="com.bd.user.User">
+		INSERT INTO
+		user2(userIdx,birth,email,zip,addr1,addr2,tel,longitude,latitude)
+		VALUES(#{userIdx},#{birth},#{email},#{zip},#{addr1},#{addr2},#{tel},#{longitude},#{latitude})
+	</insert>
+
+
+	<insert id="insertRestaurants" parameterType="com.bd.user.User">
+		INSERT INTO
+		restaurants(restaurantsNum,name,zip,addr1,addr2,userIdx,typecategoryNum,longitude,latitude, enabled,ready)
+		VALUES(#{restaurantsNum},#{fcName},#{fczip},#{fcaddr1},#{fcaddr2},#{userIdx},#{typecategoryNum},#{longitude},#{latitude},1,0)
+	</insert>
+	<insert id="insertRestaurantsInfo"
+		parameterType="com.bd.user.User">
+		INSERT INTO
+		restaurantsinfo(restaurantsNum,fctel,mutualName,licenseNumber)
+		VALUES(#{restaurantsNum},#{fctel},#{mutualName},#{licenseNumber})
+	</insert>
+
+	<select id="readRestaurantsNum" parameterType="Integer"
+		resultType="Integer">
+		SELECT RestaurantsNum FROM restaurants WHERE userIdx =
+		#{userIdx}
+	</select>
+
+	<select id="readUserId" parameterType="String"
+		resultType="com.bd.user.User">
+		SELECT u1.useridx, userid, userName, enabled, separate,
+		TO_CHAR(birth,'YYYY-MM-DD') birth, email, zip, tel, addr1, addr2
+		FROM user1 u1
+		LEFT OUTER JOIN user2 u2 ON u1.useridx = u2.useridx
+		WHERE u1.userId = #{userId}
+		
+
+
+	</select>
+</mapper>

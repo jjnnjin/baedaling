@@ -1,0 +1,198 @@
+@charset "UTF-8";
+
+*{
+	margin: 0px;
+	padding: 0px;
+}
+
+body{
+	font-family: '나눔고딕, 나눔 고딕';
+	text-align: left;
+	background-color: #f9f9fa;
+}
+
+ul li{
+	list-style: none;
+	font-size: 90%;
+	text-decoration: none;
+}
+
+
+.dash_title{
+	margin-left : 20px;
+	margin-top : 10px;
+	color : #197880;
+	font-size: 30px; 
+	font-family: '배달의민족 한나체 Pro', '배달의민족한나체Pro', 'bm-hanna-pro';
+}
+
+
+.dash_title2{
+	margin-left : 20px;
+	margin-top : 200px;
+	color : #197880;
+	font-size: 30px; 
+	font-family: '배달의민족 한나체 Pro', '배달의민족한나체Pro', 'bm-hanna-pro';
+}
+
+	
+.sidebox{
+	position : fixed;
+	background-color:#38BCC6;
+	height: 100%;
+	width: 15%;
+	position: fixed;
+}
+
+#dash_subTitle{
+	color: #D2D4D4;
+	font-size: 20px;
+	font-weight: bold;
+	margin-bottom: 15px;
+}
+
+#dash_subcontent{
+	color: white;
+	font-size: 17px;
+	font-weight: bold;
+	margin: 15px;
+}
+
+#menu_content{
+	padding-left:40px; 
+}
+
+a{
+	color: white;
+	text-decoration: none;
+}
+
+a:active {
+	background: #4FAEC0;
+}
+
+
+#dashboard_box{
+width: 100%;
+margin: 0px;
+}
+
+#dash_title{
+	font-size: 35px;
+	font-family: '배달?��민족 ?��?���? Pro', '배달?��민족?��?��체Pro', 'bm-hanna-pro';
+	width: 1400px;
+}
+
+#dash_title2{
+	width : 800px;
+}
+
+#dash_table{
+	width: 1400px;
+	height: 400px;
+	margin-top : 0px;
+	margin-left : 400px;
+	background-color: white; 
+	border-collapse: collapse;
+}
+
+
+#dash_table2{
+	width: 1400px;
+	height: 400px;
+	margin-top : 30px;
+	margin-left : 400px;
+	background-color: white; 
+	border-collapse: collapse;
+}
+
+#dash_table3{
+	width: 1300px;
+	height: 200px;
+	margin-top : 50px;
+	margin-left : 550px;
+	background-color: #f9f9fa; 
+}
+
+#dash_table4{
+	width: 1300px;
+	height: 300px;
+	margin-top : 50px;
+	margin-left : 420px;
+	background-color: white; 
+	border-collapse: collapse;
+	padding: 10px;
+}
+
+#dash_table4 tr td{
+	font-family: '배달의민족 한나체 Pro', '배달의민족한나체Pro', 'bm-hanna-pro';	
+}
+
+
+#waiting_text{
+	font-size: 25px;
+	font-family: '배달의민족 한나체 Pro', '배달의민족한나체Pro', 'bm-hanna-pro';	
+}
+
+@import url(https://fonts.googleapis.com/css?family=Raleway:500);
+.snip1284 * {
+  -webkit-transition: all 0.35s ease;
+  transition: all 0.35s ease;
+}
+.snip1284 li {
+  list-style: outside none none;
+  margin: 0.5em 1.2em;
+  padding: 0;
+}
+.snip1284 a {
+  padding: 0 0.6em;
+  /* color: rgba(255, 255, 255, 0.5); */
+  color : white;
+  position: relative;
+  text-decoration: none;
+}
+
+.snip1284:hover{
+	color: rgba(255, 255, 255, 0.5); 
+}
+
+.snip1284 a:before,
+.snip1284 a:after {
+  width: 3px;
+  height: 0;
+  position: absolute;
+  content: '';
+  -webkit-transition: all 0.35s ease;
+  transition: all 0.35s ease;
+  background-color: #348990;;
+}
+.snip1284 a:before {
+  top: 0;
+  right: 0;
+}
+.snip1284 a:after {
+  bottom: 0;
+  left: 0;
+}
+.snip1284 a:hover,
+.snip1284 .current a {
+  color: #ffffff;
+}
+.snip1284 a:hover:before,
+.snip1284 .current a:before,
+.snip1284 a:hover:after,
+.snip1284 .current a:after {
+  height: 100%;
+}
+
+#orderbutton{
+	background: white;
+	width: 60px;
+	padding: 2px;
+}
+
+#orderbutton2{
+	background: white;
+	width: 100px;
+	padding: 2px;
+}

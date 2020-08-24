@@ -1,0 +1,55 @@
+@charset "UTF-8";
+
+/* 리뷰  */
+
+body{
+	font-size: 19px;	
+	background-color: #f9f9fa;
+}
+
+
+#score_text{
+	padding-top : 1px;
+	font-size: 20px;
+	font-weight: bold;
+}
+
+.reviewContent{
+	text-align: center;
+	width: 1000px; 
+	height: 70px; 
+	border: 1px solid #dadadb;
+	border-bottom: none;
+}
+
+#star_deco{
+	color: #F2D51B;
+	font-size: 13px;	
+}
+
+#bold{
+	font-weight: bold;
+}
+
+.reviewContent2{
+	width: 1000px; 
+	height: 70px; 
+	border: 1px solid #dadadb;
+	border-bottom: none;
+}
+
+.reviewContent3{
+	width: 1000px; 
+	height: auto; 
+	border: 1px solid #dadadb;
+	border-top : none;
+	margin-top: 16px;
+}
+
+.reviewContent4{
+	width: 1000px; 
+	height: 150px; 
+	border: 1px solid #dadadb;
+	border-top : none;
+	margin-top: 16px;
+}

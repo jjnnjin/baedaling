@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="faq">
+		
+		
+	<insert id="insertBoard" parameterType="com.bd.faq.Board">
+      INSERT INTO faq(num, categoryNum, userName, subject, content)
+         VALUES(faq_seq.NEXTVAL, #{categoryNum}, #{userName}, #{subject}, #{content})   
+   </insert>
+	
+	<sql id="where-list">
+		<choose>
+			<when test="condition == 'all' ">
+				( INSTR(subject, #{keyword}) &gt; 0
+					OR INSTR(content, #{keyword}) &gt; 0
+				)
+			</when>
+			
+			<when test="condition == 'subject'">
+				( INSTR(subject, #{keyword}) &gt; 0
+				)
+			</when>
+			
+			<when test="condition == 'content'">
+				( INSTR(content, #{keyword}) &gt; 0
+				)
+			</when>
+		</choose>
+	</sql>
+	
+	
+	<select id = "dataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*),0)
+		FROM faq f
+		JOIN faqcategory c ON f.categoryNum = c.categoryNum
+		<where>
+			<if test="keyword!=null and keyword!='' ">
+				<include refid="where-list"/>
+			</if>
+			<if test="group != 0">
+				AND c.categoryNum = #{group}
+			</if>
+			
+		</where>
+	</select>
+	
+	<select id="listBoard" parameterType="map" resultType="com.bd.faq.Board">
+		SELECT num, f.categoryNum, userName, subject, content,category
+		FROM faq f
+		JOIN faqcategory c ON f.categoryNum = c.categoryNum
+		<where>
+			<if test="keyword!=null and keyword!='' ">
+				<include refid="where-list"/>
+			</if>
+			
+			<if test="group != 0">
+				AND c.categoryNum = #{group}
+			</if>
+		</where>
+		ORDER BY num DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<select id="listCategory" resultType="com.bd.faq.Board">
+		SELECT categoryNum, category
+		FROM faqCategory
+		ORDER BY categoryNum
+	</select>
+	
+	<delete id="deleteBoard">
+		DELETE FROM faq WHERE num = #{num}
+	</delete>
+	
+	<update id="updateBoard" parameterType="com.bd.faq.Board">
+		UPDATE faq SET categoryNum = #{categoryNum}, subject=#{subject}, content = #{content}
+			WHERE num = #{num}
+	</update>
+	
+	<select id="readFaq" parameterType="Integer" resultType="com.bd.faq.Board">
+		SELECT num, subject, content, f.categoryNum
+			FROM faq f
+			JOIN faqCategory c ON f.categoryNum = c.categoryNum
+		WHERE num = #{num}	
+	</select>
+	
+</mapper>

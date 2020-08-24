@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="rv">
+	<select id="seq" resultType="INTEGER">
+		SELECT review_seq.NEXTVAL FROM dual
+	</select>
+	<insert id="insertReview" parameterType="com.bd.review.Review">
+		INSERT INTO review(foodOrderNum,userIdx,content,created,starCount,reviewNum,restaurantsNum) 
+		VALUES(#{foodOrderNum},#{userIdx},#{content},SYSDATE,#{starCount},#{reviewNum},#{restaurantsNum})
+	</insert>
+	
+
+</mapper>

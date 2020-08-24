@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="event">
+	<insert id="insertEvent" parameterType="com.bd.event.Event">
+		INSERT INTO event(num, userId, userName, subject, content, hitCount, created,
+			userIdx, start_date, end_date, imageFilename)
+			VALUES (event_seq.NEXTVAL, #{userId}, #{userName}, #{subject}, #{content}, 0, SYSDATE,
+			#{userIdx}, #{start_date}, #{end_date}, #{imageFilename})
+	</insert>
+
+	<sql id="where-list">
+		<if test="condition=='all' ">
+			( INSTR(subject, #{keyword}) &gt; 0
+				OR DBMS_LOB.INSTR(content, #{keyword}) &gt; 0 )
+		</if>
+		<if test="condition=='subject' ">
+			INSTR(subject, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='content' ">
+			DBMS_LOB.INSTR( content, #{keyword}) &gt; 0 
+		</if>
+	</sql>
+
+	<select id="dataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM event e
+		JOIN user1 u ON e.userId=u.userId
+		<where>
+			<if test="keyword!=null and keyword!='' ">
+				<include refid="where-list"/>
+			</if>
+		</where>		
+	</select>
+	
+	<update id="updateHitCount" parameterType="Integer">
+		UPDATE event SET hitCount=hitCount+1 WHERE num = #{num}
+	</update>
+	
+		<select id="listEvent" parameterType="map" resultType="com.bd.event.Event">
+		SELECT num, e.userId, e.userName, TO_CHAR(start_date, 'YYYY-MM-DD') start_date,
+		TO_CHAR(end_date, 'YYYY-MM-DD') end_date, imageFilename, hitCount,
+		CASE
+   		    WHEN end_date &lt; SYSDATE THEN '마  감'
+    	    ELSE '진  행  중'
+		END AS eventState
+		FROM event e
+		JOIN user1 u ON e.userId = u.userId
+		<where>
+			<if test="keyword != null and keyword != ''">
+				<include refid="where-list"/>
+			</if>
+		</where>
+		ORDER BY num DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<select id="readEvent" parameterType="Integer" resultType="com.bd.event.Event">
+		SELECT num, e.userId, e.userName, subject, content, created, hitCount, imageFilename
+		FROM event e
+		JOIN user1 u ON e.userId = u.userId
+		WHERE num=#{num}
+	</select>
+	
+	<!-- 이전글 -->
+	<select id="preReadEvent" parameterType="map" resultType="com.bd.event.Event">
+		SELECT num, subject
+		FROM event e
+		JOIN user1 u ON e.userId=u.userId
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (num &gt; #{num})
+		</where>
+		ORDER BY num ASC
+		FETCH FIRST 1 ROWS ONLY
+	</select>
+
+	<!-- 다음글 -->
+	<select id="nextReadEvent" parameterType="map" resultType="com.bd.event.Event">
+		SELECT num, subject
+		FROM event e
+		JOIN user1 u ON e.userId=u.userId
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (num &lt; #{num})
+		</where>
+		ORDER BY num DESC
+		FETCH FIRST 1 ROWS ONLY
+	</select>
+	
+	<update id="updateEvent" parameterType="com.bd.event.Event">
+		UPDATE event SET subject=#{subject}, imageFilename=#{imageFilename}, content=#{content},
+						 start_date=#{start_date}, end_date=#{end_date}
+		WHERE num=#{num}
+	</update>
+	
+	<delete id="deleteEvent" parameterType="Integer">
+		DELETE FROM event WHERE num=#{num}
+	</delete>
+
+</mapper>

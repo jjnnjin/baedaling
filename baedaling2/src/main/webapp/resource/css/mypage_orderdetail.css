@@ -1,0 +1,29 @@
+@charset "UTF-8";
+
+.orderdetail_container { 
+	width: 800px;
+	margin: 20px auto;
+	padding-top: 20px;
+}
+
+
+.btn {
+	width: 150px;
+	height: 30px;
+	padding: 20px auto;
+/* 	border: 1px solid #B9BBBC; */
+	border-radius: 2;
+	font-size: 15px;
+}
+
+.btn1 {
+	background-color: #D5F0F5;
+}
+
+.btn2 {
+	background-color: #EFEFEF;
+}
+
+.btn3 {
+	background-color: #CCD7DA;
+}

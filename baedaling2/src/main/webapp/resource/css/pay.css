@@ -1,0 +1,101 @@
+@charset "UTF-8";
+ *:focus { outline:none; }
+#order_main_body{
+	width: 660px; 
+	height: 890px;
+	margin: 0px auto;
+}
+#order_header{
+	width: 635px;
+    height: 22px;
+    background: #00a8b5;
+    color: #f3f2f0;
+    padding: 10px 10px 10px 15px;
+    font-family: '배달의민족 한나체 Pro', '배달의민족한나체Pro', 'bm-hanna-pro';
+ 	font-size: 19px;
+}
+.order_sub_header{
+    height: 18px;
+    font-size : 17px;
+    background: #dcdcdc;
+    padding: 10px 10px 10px 15px;
+    font-family: '배달의민족 한나체 Pro', '배달의민족한나체Pro', 'bm-hanna-pro';
+}
+.order_container_box{
+	width: 660px;
+}
+.location_table{
+	border-spacing: 0px;
+	border: 1px solid #c8c8c8;
+	padding-bottom: 15px
+}
+.pay_table_info{
+	height: 65px;
+    text-align: right;
+    padding-right: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    width: 400px;
+    font-family: '맑은 고딕, 맑은고딕';
+}
+.pay_table_input{
+	width: 600px;
+    height: 33px;
+
+}
+
+.pay_table_input input {
+    width: 514px;
+    height: 10px;
+    text-align: left;
+    padding: 10px 16px;
+}
+.pay_textarea{
+	width: 628px;
+    height: 128px;
+    padding: 15px;
+    border: 1px solid #c8c8c8;
+}
+.pay_textarea textarea {
+	width: 630px;
+	height: 74px;
+	font-size: 12px;
+}
+
+.pay_table_chkbox{
+	font-size: 13px;
+}
+
+.each_pay_table{
+    width: 660px;
+    padding: 15px;
+    border: 1px solid #c8c8c8;
+    border-spacing: 5px;
+}
+.each_pay{
+	text-align: center;
+    height: 53px;
+    border: 1px solid #c8c8c8;
+    background: #f1f1f1;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.each_pay:hover{
+	background: #d0f8fb
+}
+
+.order_text_line {
+	font-size: 12px;
+	color: #6d6d6d;
+}
+
+.order_text_line b {
+	color: black;
+}
+
+.order_text_line p {
+	color: red;
+	margin: 0px;
+	padding: 0px;
+}

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="manage">
+
+	<sql id="where-list">
+		<choose>
+			<when test="condition=='userId'">
+				INSTR(userId, #{keyword}) &gt;=1
+			</when>
+			<otherwise>
+				INSTR(${condition}, #{keyword}) &gt;=1
+			</otherwise>
+		</choose>
+	</sql>
+
+	<!-- 글 개수 -->
+	<select id="dataCount" parameterType="map" resultType="Integer">
+			SELECT COUNT(*)
+			FROM user0 u0
+			LEFT OUTER JOIN user1 u1 ON u0.userIdx=u1.userIdx 
+			LEFT OUTER JOIN user2 u2 ON u0.userIdx=u2.userIdx
+		<where>
+			<if test="keyword!=null and keyword!='' ">
+				<include refid="where-list"/>
+			</if>
+			<if test="enabled!=''">
+				AND enabled = #{enabled}
+			</if>
+				AND separate=0
+		</where>
+	</select>
+
+
+	<!-- 회원 리스트 -->	
+	<select id="listManage" parameterType="map" resultType="com.bd.manage.Manage">
+		SELECT u0.userIdx, userName, userId, TO_CHAR(birth,'YYYY-MM-DD') birth, enabled,
+			   tel, email, addr1, addr2, TO_CHAR(created_date, 'YYYY-MM-DD') created_date
+		FROM user0 u0
+		LEFT OUTER JOIN user1 u1 ON u0.userIdx=u1.userIdx 
+		LEFT OUTER JOIN user2 u2 ON u0.userIdx=u2.userIdx
+
+		<where>
+			<if test="keyword!=null and keyword!='' ">
+				<include refid="where-list"/>
+			</if>
+			<if test="enabled!=''">
+				AND enabled = #{enabled}
+			</if>
+				AND separate=0
+		</where>
+
+		ORDER BY u0.userIdx DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<!-- 회원 상세표 -->
+	<select id="readUser" parameterType="String" resultType="com.bd.manage.Manage">
+		SELECT u0.userIdx, userName, userId, TO_CHAR(birth,'YYYY-MM-DD') birth, enabled,
+			   tel, email, addr1, addr2, TO_CHAR(created_date, 'YYYY-MM-DD') created_date
+		FROM user0 u0
+		LEFT OUTER JOIN user1 u1 ON u0.userIdx=u1.userIdx 
+		LEFT OUTER JOIN user2 u2 ON u0.userIdx=u2.userIdx
+		WHERE userId= #{userId}
+	</select>
+	
+	<!-- alter창 회원수정 변경 -->
+	<update id="updateUserEnabled" parameterType="map">
+		UPDATE user1 SET enabled=#{enabled} WHERE userId=#{userId}
+	</update>
+	
+	<sql id="search-list">
+		<if test="condition=='all'">
+			( INSTR(name, #{keyword}) &gt; 0
+				OR DBMS_LOB.INSTR(menuName, #{keyword}) &gt; 0 )
+		</if>
+		<if test="condition=='name' ">
+			INSTR(name, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='menuName'">
+			DBMS_LOB.INSTR( menuName, #{keyword}) &gt; 0 
+		</if>
+		<if test="condition=='foodOrderCompletionDate'">
+			( TO_CHAR(foodOrderCompletionDate, 'YYYY-MM-DD') = #{keyword}
+				OR TO_CHAR(foodOrderCompletionDate, 'YYYYMMDD') = #{keyword} )
+		</if>
+	</sql>
+	
+	<!-- 전체 주문 리스트 -->
+	<select id="allOrderList" parameterType="map" resultType="com.bd.manage.Manage">
+	SELECT f.foodOrderNum, qty*foodOrderPay foodOrderTotalPrice, foodOrderAddr, foodOrderDeliveryMethod, foodOrderHowPay, u.userName,
+	    TO_CHAR(foodOrderPayCompletionDate,'YY-MM-DD HH24:MI') foodOrderPayCompletionDate,TO_CHAR(foodOrderCompletionDate ,'YY-MM-DD HH24:MI') foodOrderCompletionDate ,
+	    r.name, LISTAGG(rm.menuName,',') WITHIN GROUP(ORDER BY f.foodorderNum)AS menuName
+		FROM foodorder f 
+		JOIN orderdetail o ON f.foodorderNum = o.foodorderNum 
+		JOIN restaurants r ON f.restaurantsNum = r.restaurantsNum
+		JOIN user1 u ON f.userIdx = u.userIdx
+		JOIN restaurantMenu rm ON r.restaurantsNum = rm.restaurantsNum
+    <where>
+			<if test="keyword!=null and keyword!=''">
+				<include refid="search-list"/>
+			</if>
+	</where>
+	GROUP BY f.foodOrderNum, foodOrderPay, f.foodOrderAddr, foodOrderDeliveryMethod, foodOrderHowPay, foodOrderPayCompletionDate, u.userName,
+    foodOrderCompletionDate,f.userIdx, r.name, foodOrderTotalPrice, qty 
+    ORDER BY f.foodOrderNum DESC
+	OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+</mapper>

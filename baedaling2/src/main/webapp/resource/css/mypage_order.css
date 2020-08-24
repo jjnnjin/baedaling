@@ -1,0 +1,27 @@
+@charset "UTF-8";
+
+
+.order_container { 
+	width: 900px;
+	margin: 30px auto;
+}
+
+.btn {
+	width: 70px;
+	height: 35px;
+	margin-bottom: 5px;
+	border: 1px solid #B9BBBC;
+	border-radius: 2;
+}
+
+.btn1 {
+	background-color: #D5F0F5;
+}
+
+.btn2 {
+	background-color: #EFEFEF;
+}
+
+.btn3 {
+	background-color: #CCD7DA;
+}

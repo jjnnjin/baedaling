@@ -1,0 +1,126 @@
+@charset "UTF-8";
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+.infoContent{
+	width: 598px; 
+	height: 900px;
+	margin: 0px auto;
+	border: 1px solid #dadadb;
+}
+
+#info_title{
+	border-bottom: 0.5px dotted #dadadb;
+	padding: 10px;
+}
+
+#info_content2{
+	padding: 10px;
+	margin-bottom: 5px;
+}
+
+.storeBox{
+	width: 100%;
+	margin: 0px auto;
+	background-color: #f9f9fa;
+}
+
+.store_basic{
+	width: 600px;
+	margin: 30px auto;
+	background-color: white;
+}
+
+ul li{
+	color: #333;
+	list-style: none;
+	font-size: 90%;
+}
+
+#shop_title{
+	font-size : 14.5px;
+	color
+	height : 40px;
+	padding-top : 10px;
+	padding-bottom : 5px;
+	padding-left : 9px;
+	border: 1px solid #dadadb;
+	border-bottom : none;
+}
+
+#store_content{
+	border: 1px solid #dadadb;
+	border-bottom: none;
+	padding: 5px;
+}
+
+#store_img{
+	border : 0.5px solid #dadadb;
+	margin : 4px 5px;
+	width: 70px;
+	height: 70px;
+	float: left;
+}
+
+
+#st_notice{
+	border: 1px solid #dadadb;
+	height: 50px;
+	padding-top: 5px;
+	padding-left: 10px;
+}
+
+.st_subClick{
+	margin-top: 15px;
+}
+
+
+#st_menu_btn{
+	border: 1px solid #dadadb;
+	width: 196px;
+	height: 40px;
+	background-color: white;
+}
+
+#st_review_btn{
+	border: 1px solid #dadadb;
+	width: 197px;
+	height: 40px;
+	background-color: white;
+}
+
+#st_info{
+	border: 1px solid #dadadb;
+	width: 197.5px;
+	height: 40px;
+	background-color: white;
+}
+
+button{
+	border: 0;
+	outline: 0;
+	
+}
+
+#st_menu_btn:hover {
+	border-bottom: 3px solid #38BCC6; 
+}
+
+#st_info:hover {
+	border-bottom: 3px solid #38BCC6; 
+}
+
+#st_review_btn:hover {
+	border-bottom: 3px solid #38BCC6; 
+}
+
+#light_gray{
+	color:#A0A1A2;
+}
+
+#red{
+	color:#F0001E
+}

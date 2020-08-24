@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="inquire">
+
+	<insert id="insertInquire" parameterType="com.bd.inquire.Inquire">
+		INSERT INTO inquire(num, userId, email, category, subject, question, created)
+			VALUES (inquire_seq.NEXTVAL, #{userId}, #{email}, #{category}, #{subject}, #{question}, SYSDATE)
+	</insert>
+	
+	<!-- 검색할 때 키워드 말머리 -->
+	<sql id="where-list">
+		<choose>
+			<when test="condition=='all' ">
+				( INSTR(subject, #{keyword}) &gt; 0
+					OR DBMS_LOB.INSTR(question, #{keyword}) &gt; 0 )
+			</when>
+			<when test="condition=='created' ">
+				( TO_CHAR(created, 'YYYYMMDD')=#{keyword}
+					OR TO_CHAR(created, 'YYYY-MM-DD') = ${keyword} )
+			</when>
+			<when test="condition == 'question'">
+				DBMS_LOB.INSTR(question, #{keyword}) &gt; 0
+			</when>
+			<otherwise>
+				INSTR(${question}, #{keyword}) &gt;0
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<!-- 글 개수 -->
+	<select id="dataCount" parameterType="map" resultType="Integer">
+			SELECT NVL(COUNT(*), 0)
+			FROM inquire i
+			JOIN user1 u ON i.userId=u.userId
+		<where>
+			<if test="keyword!=null and keyword!=''">
+				<include refid="where-list"/>
+			</if>
+			<if test="userId!=null and userId!='admin' ">
+				AND i.userId = #{userId}
+			</if>
+		</where>
+	</select>
+
+	<!-- 글 리스트 -->
+	<select id="listInquire" parameterType="map" resultType="com.bd.inquire.Inquire">
+		SELECT num, u.userId, subject, 
+			   TO_CHAR(i.created, 'YYYY-MM-DD') created, answer
+		FROM inquire i
+		JOIN user1 u ON i.userId=u.userId
+		<where>
+				<if test="keyword != null and keyword != ''">
+					<include refid="where-list"/>
+				</if>
+				<if test="userId!=null and userId!='admin' ">
+					AND i.userId = #{userId}
+				</if>				
+		</where>
+		ORDER BY num DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<!-- 글보기  -->
+	<select id="readInquire" parameterType="Integer" resultType="com.bd.inquire.Inquire">
+		SELECT num, i.userId, u.userName, subject, question, i.created, i.answerId, u2.userName answerName, answer, TO_CHAR(answer_created, 'YYYY-MM-DD') answer_created
+		FROM inquire i
+		JOIN user1 u ON i.userId=u.userId
+		LEFT OUTER JOIN user1 u2 ON i.answerId=u2.userId
+		WHERE num=#{num}
+	</select>
+	
+	<!-- 이전글 -->
+	<select id="preReadInquire" parameterType="map" resultType="com.bd.inquire.Inquire">
+		SELECT num, subject
+		FROM inquire i 
+		JOIN user1 u ON i.userId=u.userId
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (num &gt; #{num})
+		</where>
+		ORDER BY num ASC
+		FETCH FIRST 1 ROWS ONLY
+	</select>
+	
+	<!-- 다음글 -->
+	<select id="nextReadInquire" parameterType="map" resultType="com.bd.inquire.Inquire">
+		SELECT num, subject
+		FROM inquire i
+		JOIN user1 u ON i.userId = u.userId
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (num &lt; #{num})
+		</where>
+		ORDER BY num DESC
+		FETCH FIRST 1 ROWS ONLY
+	</select>
+	
+	<!-- 글 수정 -->
+	<update id="updateInquire" parameterType="com.bd.inquire.Inquire">
+		UPDATE inquire SET subject=#{subject}, question=#{question}
+		WHERE num=#{num}	
+	</update>
+	
+	<update id="updateInquireAdmin" parameterType="com.bd.inquire.Inquire">
+		UPDATE inquire SET answerId=#{answerId}, answer=#{answer}, answer_created=SYSDATE
+		WHERE num=#{num}
+	</update>
+	
+	<!-- 글 삭제 -->
+	<delete id="deleteInquire" parameterType="Integer">
+		DELETE FROM inquire WHERE num = #{num}
+	</delete>
+
+	
+</mapper>

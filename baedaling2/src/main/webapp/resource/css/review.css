@@ -1,0 +1,112 @@
+@charset "UTF-8";
+
+.btn {
+   color: gray;
+   font-weight:500;
+   border:1px solid #cccccc;
+   background-color:#ffffff;
+   text-align:center;
+   cursor:pointer;
+   padding:3px 10px 5px;
+   border-radius:4px;
+   font-family:"Malgun Gothic", "맑은 고딕", NanumGothic, 나눔고딕, 돋움, sans-serif;
+}
+
+
+.boxTF {
+   border: 1px solid #DDDFE0; 
+   padding:3px 5px 5px;
+   border-radius:4px;
+   background-color:#ffffff;
+   font-family:"Malgun Gothic", "맑은 고딕", NanumGothic, 나눔고딕, 돋움, sans-serif;
+   height: 25px;
+}
+
+.body{
+   font-size: 13px;
+   font-family: '맑은 고딕';
+}
+
+.box{
+   margin : 20px auto;
+   width: 80%;
+   background-color: white;
+}
+
+#ftitle{
+   color: gray;
+}
+
+.f_line{ 
+   height: 25px;
+}
+
+.review_table{
+   border: 1px solid gray;
+   border-left: none;
+   border-right: none;
+   width: 100%;
+}
+
+.fcontent{
+   border: 1px solid gray; 
+   border-left : none;
+   border-right: none;
+   color: gray;  
+}
+
+.subtitle{
+   padding-left: 35px;
+   width: 47px;
+   font-weight: bold;
+   color: gray;
+   height: 40px;
+   width: 90px;
+   
+}
+
+#subcontent{
+
+   color: gray;
+   border: 1px solid #DDDFE0; 
+   border-right: none;
+   border-left: none;
+   height: 20px;
+   
+}
+
+#subcontent2{
+
+   color: gray;
+   border-bottom: 1px solid #DDDFE0; 
+   height: 20px;
+}
+
+#review_content{
+	margin: 0px; 
+	border-color: #DDDFE0; 
+	resize: none; 
+	color: gray; 
+	border-radius:4px;
+}
+#ftitle {
+	padding-bottom: 10px;
+    color: gray;
+    border-bottom: 1px solid #cccccc;
+}
+
+#ftitle a {
+	font-size: 29px;
+}
+
+#starCount{
+    width: 8px;
+    padding-left: 10px;
+    padding-right: 0px;
+    font-size: 12px;
+    color: grey;
+}
+
+.star a.on {
+	color:#F2CB61;
+}

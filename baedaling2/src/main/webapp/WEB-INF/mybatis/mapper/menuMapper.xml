@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="menu">
+	<select id="restaurantsNum" parameterType="Integer" resultType="Integer">
+		SELECT restaurantsNum 
+		FROM restaurants r
+		JOIN user1 u ON u.userIdx = r.userIdx
+		WHERE u.userIdx = #{userIdx}
+	</select>
+
+
+	<insert id="insertMenu" parameterType="com.bd.menu.Menu">
+		INSERT INTO restaurantmenu(menuNum, menuName, menuPrice, restaurantsNum, menuCategoryNum,saveFilename, originalFilename, enabled, menuInfo, origin)
+		VALUES(restaurantmenu_seq.NEXTVAL,#{menuName},#{menuPrice},#{restaurantsNum},#{menuCategoryNum},#{saveFilename, jdbcType=VARCHAR},#{originalFilename,jdbcType=VARCHAR},1, #{menuInfo},#{origin})
+	
+	</insert>
+	
+	<select id="listMenu" parameterType="map" resultType="com.bd.menu.Menu">
+		SELECT menuNum, menuName, restaurantsNum, saveFilename, menucategoryNum
+		FROM restaurantmenu
+		WHERE restaurantsNum = #{restaurantsNum} 
+		<if test="group != 0">
+				AND menuCategoryNum = #{group}
+		</if>
+		ORDER BY menuNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<select id = "dataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*),0)
+		FROM restaurantmenu r
+		JOIN menucategory m ON r.menuCategoryNum = m.menuCategoryNum
+		WHERE restaurantsNum = #{restaurantsNum} 
+			<if test="group != 0">
+				AND r.menuCategoryNum = #{group}
+			</if>
+	</select>
+	
+	<select id="listCategory" resultType="com.bd.menu.Menu">
+		SELECT menuCategoryNum, menuCategoryName
+		FROM menuCategory
+		ORDER BY menuCategoryNum
+	</select>
+	
+	<select id="readMenu" parameterType="Integer" resultType="com.bd.menu.Menu">
+		SELECT menuNum, menuName, menuPrice, restaurantsNum, menuCategoryNum, saveFilename,originalFilename, origin, enabled, menuInfo
+		FROM restaurantmenu
+		WHERE menuNum = #{menuNum}
+	</select>
+	
+	<update id="updateMenu" parameterType="com.bd.menu.Menu" >
+		UPDATE restaurantmenu SET menuName = #{menuName}, menuPrice = #{menuPrice},menuCategoryNum = #{menuCategoryNum},saveFilename = #{saveFilename, jdbcType=VARCHAR},originalFilename = #{originalFilename, jdbcType=VARCHAR},
+			origin = #{origin}, enabled = #{enabled},menuInfo = #{menuInfo}
+		WHERE menuNum = #{menuNum}
+	
+	</update>
+	
+	<delete id="deleteMenu" parameterType="Integer">
+		DELETE FROM restaurantmenu WHERE menuNum = #{menuNum}
+	</delete>
+	
+</mapper>
